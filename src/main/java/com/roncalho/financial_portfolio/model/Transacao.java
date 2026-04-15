@@ -1,0 +1,46 @@
+package com.roncalho.financial_portfolio.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Builder
+@Table(name = "transacoes")
+public class Transacao {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(length = 255)
+    private String descricao;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal valor;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private TipoTransacao tipo;
+
+    @Column(name = "data_transacao", nullable = false)
+    private LocalDateTime dataTransacao;
+
+    @CreationTimestamp
+    @Column(name = "criado_em")
+    private LocalDateTime criadoEm;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoria_id", nullable = false)
+    private Categoria categoria;
+
+    //TODO: mapear @ManyToOne com Usuario quando implementar autenticação
+    private Long usuarioId;
+}
