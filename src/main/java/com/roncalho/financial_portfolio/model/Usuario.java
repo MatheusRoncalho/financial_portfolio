@@ -13,20 +13,25 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-@Table(name = "categorias")
-public class Categoria {
+@Table(name = "usuarios")
+public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
 
     @Column(length = 100, nullable = false)
     private String nome;
 
+    @Column(length = 100, nullable = false, unique = true)
+    private String email;
+
+    @Column(length = 100, nullable = false)
+    private String senha;
+
     @CreationTimestamp
-    @Column(name = "criado_em")
     private LocalDateTime criadoEm;
 
-    @OneToMany(mappedBy = "categoria")
+    @OneToMany(mappedBy = "usuario")
     private List<Transacao> transacoes;
 }

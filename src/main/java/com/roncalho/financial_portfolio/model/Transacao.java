@@ -30,7 +30,7 @@ public class Transacao {
     @Enumerated(EnumType.STRING)
     private TipoTransacao tipo;
 
-    @Column(name = "data_transacao", nullable = false)
+    @Column(name = "data_transacao")
     private LocalDateTime dataTransacao;
 
     @CreationTimestamp
@@ -41,6 +41,7 @@ public class Transacao {
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
 
-    //TODO: mapear @ManyToOne com Usuario quando implementar autenticação
-    private Long usuarioId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Long usuario;
 }
