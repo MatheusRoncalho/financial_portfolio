@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
-@Table(name = "transacoes")
-public class Transacao {
+@Table(name = "transacoes_recorrentes")
+public class TransacaoRecorrente {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,8 +30,13 @@ public class Transacao {
     @Enumerated(EnumType.STRING)
     private TipoTransacao tipo;
 
-    @Column(name = "data_transacao")
-    private LocalDateTime dataTransacao;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private FrequenciaRecorrencia frequencia;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private StatusRecorrencia status;
 
     @CreationTimestamp
     @Column(name = "criado_em")
@@ -40,8 +45,5 @@ public class Transacao {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id", nullable = false)
-    private Long usuario;
 }
+

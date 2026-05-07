@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -13,20 +13,27 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-@Table(name = "categorias")
-public class Categoria {
+@Table(name = "metas")
+public class Meta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 100, nullable = false)
-    private String nome;
+
+    @Column(name = "valor_limite", nullable = false, precision = 10, scale = 2)
+    private BigDecimal valorLimite;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private PeriodoMeta periodo;
 
     @CreationTimestamp
     @Column(name = "criado_em")
     private LocalDateTime criadoEm;
 
-    @OneToMany(mappedBy = "categoria")
-    private List<Transacao> transacoes;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoria_id", nullable = false)
+    private Categoria categoria;
 }
+
