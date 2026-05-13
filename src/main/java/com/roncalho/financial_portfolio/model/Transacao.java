@@ -43,5 +43,5 @@ public class Transacao {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
-    private Long usuario;
+    private Usuario usuario;
 }

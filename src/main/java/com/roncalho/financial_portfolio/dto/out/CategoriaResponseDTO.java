@@ -1,4 +1,11 @@
 package com.roncalho.financial_portfolio.dto.out;
 
-public record CategoriaResponseDTO() {
+import java.time.LocalDateTime;
+
+public record CategoriaResponseDTO(
+        Long id,
+        String nome,
+        Boolean sistema,
+        LocalDateTime criadoEm
+) {
 }

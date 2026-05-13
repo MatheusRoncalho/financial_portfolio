@@ -1,4 +1,18 @@
 package com.roncalho.financial_portfolio.dto.out;
 
-public record TransacaoResponseDTO() {
+import com.roncalho.financial_portfolio.model.Transacao;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+public record TransacaoResponseDTO(
+        Long id,
+        String descricao,
+        BigDecimal valor,
+        String tipo,
+        Long categoriaId,
+        String categoriaNome,
+        LocalDateTime dataTransacao,
+        LocalDateTime criadoEm
+) {
 }

@@ -5,8 +5,10 @@ import com.roncalho.financial_portfolio.dto.out.MetaResponseDTO;
 import com.roncalho.financial_portfolio.model.Categoria;
 import com.roncalho.financial_portfolio.model.Meta;
 import com.roncalho.financial_portfolio.model.PeriodoMeta;
+import com.roncalho.financial_portfolio.model.Usuario;
 import com.roncalho.financial_portfolio.repository.CategoriaRepository;
 import com.roncalho.financial_portfolio.repository.MetaRepository;
+import com.roncalho.financial_portfolio.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -19,66 +21,72 @@ public class MetaService {
 
     private final MetaRepository metaRepository;
     private final CategoriaRepository categoriaRepository;
+    private final UsuarioRepository usuarioRepository;
 
-    public MetaService(MetaRepository metaRepository, CategoriaRepository categoriaRepository) {
+    public MetaService(MetaRepository metaRepository, CategoriaRepository categoriaRepository,
+                      UsuarioRepository usuarioRepository) {
         this.metaRepository = metaRepository;
         this.categoriaRepository = categoriaRepository;
+        this.usuarioRepository = usuarioRepository;
     }
 
     @Transactional
-    public MetaResponseDTO criar(MetaRequestDTO dto) {
-        Categoria categoria = categoriaRepository.findById(dto.id())
-                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada"));
+    public MetaResponseDTO criarMeta(MetaRequestDTO dto, Long usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+
+        Categoria categoria = categoriaRepository.findByIdAndUsuarioId(dto.categoriaId(), usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada ou acesso negado"));
 
         Meta meta = Meta.builder()
                 .categoria(categoria)
+                .usuario(usuario)
                 .valorLimite(dto.valorLimite())
                 .periodo(PeriodoMeta.valueOf(dto.tipoPeriodo().toUpperCase()))
                 .build();
 
-        Meta saved = metaRepository.save(meta);
-        return converterParaDTO(saved, BigDecimal.ZERO);
+        Meta metaSalva = metaRepository.save(meta);
+        return converterParaDTO(metaSalva, BigDecimal.ZERO);
     }
 
-    public List<MetaResponseDTO> listar() {
-        return metaRepository.findAll().stream()
+    public List<MetaResponseDTO> listarMetas(Long usuarioId) {
+        return metaRepository.findByUsuarioId(usuarioId).stream()
                 .map(meta -> converterParaDTO(meta, BigDecimal.ZERO))
                 .collect(Collectors.toList());
     }
 
-    public MetaResponseDTO obterPorId(Long id) {
-        Meta meta = metaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Meta não encontrada"));
+    public MetaResponseDTO obterMetaPorId(Long id, Long usuarioId) {
+        Meta meta = metaRepository.findByIdAndUsuarioId(id, usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Meta não encontrada ou acesso negado"));
         return converterParaDTO(meta, BigDecimal.ZERO);
     }
 
     @Transactional
-    public MetaResponseDTO atualizar(Long id, MetaRequestDTO dto) {
-        Meta meta = metaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Meta não encontrada"));
+    public MetaResponseDTO atualizarMeta(Long id, MetaRequestDTO dto, Long usuarioId) {
+        Meta meta = metaRepository.findByIdAndUsuarioId(id, usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Meta não encontrada ou acesso negado"));
 
-        Categoria categoria = categoriaRepository.findById(dto.id())
-                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada"));
+        Categoria categoria = categoriaRepository.findByIdAndUsuarioId(dto.categoriaId(), usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada ou acesso negado"));
 
         meta.setCategoria(categoria);
         meta.setValorLimite(dto.valorLimite());
         meta.setPeriodo(PeriodoMeta.valueOf(dto.tipoPeriodo().toUpperCase()));
 
-        Meta updated = metaRepository.save(meta);
-        return converterParaDTO(updated, BigDecimal.ZERO);
+        Meta metaAtualizada = metaRepository.save(meta);
+        return converterParaDTO(metaAtualizada, BigDecimal.ZERO);
     }
 
     @Transactional
-    public void deletar(Long id) {
-        if (!metaRepository.existsById(id)) {
-            throw new IllegalArgumentException("Meta não encontrada");
-        }
-        metaRepository.deleteById(id);
+    public void deletarMeta(Long id, Long usuarioId) {
+        Meta meta = metaRepository.findByIdAndUsuarioId(id, usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Meta não encontrada ou acesso negado"));
+        metaRepository.deleteById(meta.getId());
     }
 
-    public MetaResponseDTO obterProgresso(Long id) {
-        Meta meta = metaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Meta não encontrada"));
+    public MetaResponseDTO obterMetaProgresso(Long id, Long usuarioId) {
+        Meta meta = metaRepository.findByIdAndUsuarioId(id, usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Meta não encontrada ou acesso negado"));
 
         // Implementar lógica de cálculo do valor atual baseado nas transações
         BigDecimal valorAtual = BigDecimal.ZERO; // TODO: calcular a partir do repository
@@ -87,8 +95,8 @@ public class MetaService {
         return converterParaDTO(meta, percentual);
     }
 
-    public List<MetaResponseDTO> obterProgressoTodos() {
-        return metaRepository.findAll().stream()
+    public List<MetaResponseDTO> obterMetaProgressoTodos(Long usuarioId) {
+        return metaRepository.findByUsuarioId(usuarioId).stream()
                 .map(meta -> {
                     BigDecimal valorAtual = BigDecimal.ZERO; // TODO: calcular a partir do repository
                     BigDecimal percentual = calcularPercentual(valorAtual, meta.getValorLimite());
@@ -108,12 +116,18 @@ public class MetaService {
     private MetaResponseDTO converterParaDTO(Meta meta, BigDecimal percentual) {
         return new MetaResponseDTO(
                 meta.getId(),
+                meta.getCategoria().getId(),
                 meta.getCategoria().getNome(),
                 meta.getValorLimite(),
                 BigDecimal.ZERO, // valorAtual - será calculado
                 meta.getPeriodo().toString(),
-                percentual
+                percentual,
+                meta.getCriadoEm()
         );
     }
 }
+
+
+
+
 

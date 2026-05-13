@@ -18,11 +18,19 @@ public class DashboardService {
         // - totalGastos
         // - saldoPeriodo
 
-        return new DashboardResumoResponseDTO();
+        BigDecimal saldoAtual = BigDecimal.ZERO;
+        BigDecimal totalGanhos = BigDecimal.ZERO;
+        BigDecimal totalGastos = BigDecimal.ZERO;
+        BigDecimal saldoPeriodo = BigDecimal.ZERO;
+        Integer totalTransacoes = 0;
+        BigDecimal percentualGastos = BigDecimal.ZERO;
+
+        return new DashboardResumoResponseDTO(saldoAtual, totalGanhos, totalGastos, saldoPeriodo, dataInicio, dataFim, totalTransacoes, percentualGastos);
     }
 
     public DashboardResumoResponseDTO obterResumoAtual(Long usuarioId) {
         return obterResumo(LocalDate.now().withDayOfMonth(1), LocalDate.now(), usuarioId);
     }
 }
+
 

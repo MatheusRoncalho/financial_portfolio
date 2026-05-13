@@ -27,6 +27,13 @@ public class Categoria {
     @Column(name = "criado_em")
     private LocalDateTime criadoEm;
 
+    @Column(nullable = false)
+    private Boolean sistema;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
+
     @OneToMany(mappedBy = "categoria")
     private List<Transacao> transacoes;
 }
