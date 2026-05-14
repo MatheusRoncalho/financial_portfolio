@@ -28,5 +28,5 @@ jobs:
           java-version: 21
           cache: maven
 
-      - name: Build and Test
+      - name: Build
         run: mvn clean verify
