@@ -32,11 +32,20 @@ public class TransacaoRecorrente {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private FrequenciaRecorrencia frequencia;
+    private PeriodoRecorrencia periodo;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private StatusRecorrencia status;
+
+    @Column(name = "data_inicial", nullable = false)
+    private LocalDateTime dataInicial;
+
+    @Column(name = "data_final")
+    private LocalDateTime dataFinal;
+
+    @Column(name = "proxima_transacao", nullable = false)
+    private LocalDateTime proximaTransacao;
 
     @CreationTimestamp
     @Column(name = "criado_em")
@@ -45,5 +54,9 @@ public class TransacaoRecorrente {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
 }
 

@@ -3,12 +3,14 @@ package com.roncalho.financial_portfolio.service;
 import com.roncalho.financial_portfolio.dto.in.TransacaoRecorrenteRequestDTO;
 import com.roncalho.financial_portfolio.dto.out.TransacaoRecorrenteResponseDTO;
 import com.roncalho.financial_portfolio.model.Categoria;
-import com.roncalho.financial_portfolio.model.FrequenciaRecorrencia;
+import com.roncalho.financial_portfolio.model.PeriodoRecorrencia;
 import com.roncalho.financial_portfolio.model.StatusRecorrencia;
 import com.roncalho.financial_portfolio.model.TipoTransacao;
 import com.roncalho.financial_portfolio.model.TransacaoRecorrente;
+import com.roncalho.financial_portfolio.model.Usuario;
 import com.roncalho.financial_portfolio.repository.CategoriaRepository;
 import com.roncalho.financial_portfolio.repository.TransacaoRecorrenteRepository;
+import com.roncalho.financial_portfolio.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -21,73 +23,82 @@ public class TransacaoRecorrenteService {
 
     private final TransacaoRecorrenteRepository transacaoRecorrenteRepository;
     private final CategoriaRepository categoriaRepository;
+    private final UsuarioRepository usuarioRepository;
 
-    public TransacaoRecorrenteService(TransacaoRecorrenteRepository transacaoRecorrenteRepository,
-                                     CategoriaRepository categoriaRepository) {
+    public TransacaoRecorrenteService(TransacaoRecorrenteRepository transacaoRecorrenteRepository, CategoriaRepository categoriaRepository, UsuarioRepository usuarioRepository) {
         this.transacaoRecorrenteRepository = transacaoRecorrenteRepository;
         this.categoriaRepository = categoriaRepository;
+        this.usuarioRepository = usuarioRepository;
     }
 
     @Transactional
-    public TransacaoRecorrenteResponseDTO criar(TransacaoRecorrenteRequestDTO dto) {
-        Categoria categoria = categoriaRepository.findById(dto.categoriaId())
-                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada"));
+    public TransacaoRecorrenteResponseDTO criarTransacaoRecorrente(TransacaoRecorrenteRequestDTO dto, Long usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
 
-        TransacaoRecorrente transacao = TransacaoRecorrente.builder()
+        Categoria categoria = categoriaRepository.findByIdAndUsuarioId(dto.categoriaId(), usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada ou acesso negado"));
+
+        TransacaoRecorrente transacaoRecorrente = TransacaoRecorrente.builder()
                 .descricao(dto.descricao())
                 .valor(dto.valor())
                 .tipo(TipoTransacao.valueOf(dto.tipo().toUpperCase()))
-                .frequencia(FrequenciaRecorrencia.valueOf(dto.tipoPeriodo().toUpperCase()))
+                .periodo(PeriodoRecorrencia.valueOf(dto.tipoPeriodo().toUpperCase()))
                 .status(StatusRecorrencia.ATIVO)
                 .categoria(categoria)
+                .usuario(usuario)
+                .dataInicial(dto.dataInicial())
+                .dataFinal(dto.dataFinal() != null ? dto.dataFinal() : null)
                 .build();
 
-        TransacaoRecorrente saved = transacaoRecorrenteRepository.save(transacao);
-        return converterParaDTO(saved);
+        transacaoRecorrente.setProximaTransacao(calcularProximaTransacao(transacaoRecorrente));
+
+        TransacaoRecorrente transacaoRecorrenteSalva = transacaoRecorrenteRepository.save(transacaoRecorrente);
+        return converterParaDTO(transacaoRecorrenteSalva);
     }
 
-    public List<TransacaoRecorrenteResponseDTO> listar() {
-        return transacaoRecorrenteRepository.findAll().stream()
+    public List<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentes(Long usuarioId) {
+        return transacaoRecorrenteRepository.findByUsuarioId(usuarioId).stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
     }
 
-    public TransacaoRecorrenteResponseDTO obterPorId(Long id) {
-        TransacaoRecorrente transacao = transacaoRecorrenteRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Transação recorrente não encontrada"));
+    public TransacaoRecorrenteResponseDTO obterTransacaoRecorrentePorId(Long id, Long usuarioId) {
+        TransacaoRecorrente transacao = transacaoRecorrenteRepository.findByIdAndUsuarioId(id, usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Transação recorrente não encontrada ou acesso negado"));
         return converterParaDTO(transacao);
     }
 
     @Transactional
-    public TransacaoRecorrenteResponseDTO atualizar(Long id, TransacaoRecorrenteRequestDTO dto) {
-        TransacaoRecorrente transacao = transacaoRecorrenteRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Transação recorrente não encontrada"));
+    public TransacaoRecorrenteResponseDTO atualizarTransacaoRecorrente(Long id, TransacaoRecorrenteRequestDTO dto, Long usuarioId) {
+        TransacaoRecorrente transacao = transacaoRecorrenteRepository.findByIdAndUsuarioId(id, usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Transação recorrente não encontrada ou acesso negado"));
 
-        Categoria categoria = categoriaRepository.findById(dto.categoriaId())
-                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada"));
+        Categoria categoria = categoriaRepository.findByIdAndUsuarioId(dto.categoriaId(), usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada ou acesso negado"));
 
         transacao.setDescricao(dto.descricao());
         transacao.setValor(dto.valor());
         transacao.setTipo(TipoTransacao.valueOf(dto.tipo().toUpperCase()));
-        transacao.setFrequencia(FrequenciaRecorrencia.valueOf(dto.tipoPeriodo().toUpperCase()));
+        transacao.setPeriodo(PeriodoRecorrencia.valueOf(dto.tipoPeriodo().toUpperCase()));
         transacao.setCategoria(categoria);
+        transacao.setDataFinal(dto.dataFinal() != null ? dto.dataFinal() : null);
 
-        TransacaoRecorrente updated = transacaoRecorrenteRepository.save(transacao);
-        return converterParaDTO(updated);
+        TransacaoRecorrente TransacaoRecorrenteAtualizada = transacaoRecorrenteRepository.save(transacao);
+        return converterParaDTO(TransacaoRecorrenteAtualizada);
     }
 
     @Transactional
-    public void deletar(Long id) {
-        if (!transacaoRecorrenteRepository.existsById(id)) {
-            throw new IllegalArgumentException("Transação recorrente não encontrada");
-        }
-        transacaoRecorrenteRepository.deleteById(id);
+    public void deletarTransacaoRecorrente(Long id, Long usuarioId) {
+        TransacaoRecorrente transacao = transacaoRecorrenteRepository.findByIdAndUsuarioId(id, usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Transação recorrente não encontrada ou acesso negado"));
+        transacaoRecorrenteRepository.deleteById(transacao.getId());
     }
 
     @Transactional
-    public TransacaoRecorrenteResponseDTO alterarStatus(Long id, String novoStatus) {
-        TransacaoRecorrente transacao = transacaoRecorrenteRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Transação recorrente não encontrada"));
+    public TransacaoRecorrenteResponseDTO alterarStatus(Long id, String novoStatus, Long usuarioId) {
+        TransacaoRecorrente transacao = transacaoRecorrenteRepository.findByIdAndUsuarioId(id, usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Transação recorrente não encontrada ou acesso negado"));
 
         StatusRecorrencia status = StatusRecorrencia.valueOf(novoStatus.toUpperCase());
         transacao.setStatus(status);
@@ -96,49 +107,56 @@ public class TransacaoRecorrenteService {
         return converterParaDTO(updated);
     }
 
-    public List<TransacaoRecorrenteResponseDTO> listarPorStatus(String status) {
+    public List<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentesPorStatus(String status, Long usuarioId) {
         StatusRecorrencia statusEnum = StatusRecorrencia.valueOf(status.toUpperCase());
-        return transacaoRecorrenteRepository.findByStatus(statusEnum).stream()
+        return transacaoRecorrenteRepository.findByUsuarioIdAndStatus(usuarioId, statusEnum).stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
     }
 
-    public List<TransacaoRecorrenteResponseDTO> listarPorCategoria(Long categoriaId) {
-        return transacaoRecorrenteRepository.findByCategoriaId(categoriaId).stream()
+    public List<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentesPorCategoria(Long categoriaId, Long usuarioId) {
+        return transacaoRecorrenteRepository.findByUsuarioIdAndCategoriaId(usuarioId, categoriaId).stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
     }
 
     private TransacaoRecorrenteResponseDTO converterParaDTO(TransacaoRecorrente transacao) {
-        LocalDateTime proximaTransacao = calcularProximaTransacao(transacao);
-
         return new TransacaoRecorrenteResponseDTO(
                 transacao.getId(),
                 transacao.getDescricao(),
                 transacao.getValor(),
+                transacao.getTipo().toString(),
+                transacao.getCategoria().getId(),
+                transacao.getCategoria().getNome(),
+                transacao.getPeriodo().toString(),
                 transacao.getStatus().toString(),
-                proximaTransacao != null ? proximaTransacao.toString() : null
+                transacao.getDataInicial(),
+                transacao.getDataFinal(),
+                transacao.getProximaTransacao(),
+                transacao.getCriadoEm()
         );
     }
 
-    private LocalDateTime calcularProximaTransacao(TransacaoRecorrente transacao) {
-        if (!transacao.getStatus().equals(StatusRecorrencia.ATIVO)) {
+    private LocalDateTime calcularProximaTransacao(TransacaoRecorrente transacaoRecorrente) {
+        if (transacaoRecorrente.getStatus() != StatusRecorrencia.ATIVO) {
             return null;
         }
 
-        LocalDateTime agora = LocalDateTime.now();
-        switch (transacao.getFrequencia()) {
+        LocalDateTime inicio = transacaoRecorrente.getDataInicial();
+        switch (transacaoRecorrente.getPeriodo()) {
             case DIARIA:
-                return agora.plusDays(1);
+                return inicio.plusDays(1);
             case SEMANAL:
-                return agora.plusWeeks(1);
+                return inicio.plusWeeks(1);
             case MENSAL:
-                return agora.plusMonths(1);
+                return inicio.plusMonths(1);
             case ANUAL:
-                return agora.plusYears(1);
+                return inicio.plusYears(1);
             default:
                 return null;
         }
     }
 }
+
+
 

@@ -22,21 +22,21 @@ public class UsuarioService {
     }
 
     @Transactional
-    public RegisterResponseDTO registrar(RegisterRequestDTO dto) {
+    public RegisterResponseDTO registrarUsuario(RegisterRequestDTO dto) {
         if (usuarioRepository.findByEmail(dto.email()).isPresent()) {
             throw new IllegalArgumentException("Email já cadastrado");
         }
 
         Usuario usuario = Usuario.builder()
-                .nome(dto.username())
+                .username(dto.username())
                 .email(dto.email())
-                .senha(passwordEncoder.encode(dto.password()))
+                .senha(passwordEncoder.encode(dto.senha()))
                 .ativo(true)
                 .build();
 
-        Usuario saved = usuarioRepository.save(usuario);
+        Usuario usuarioSalvo = usuarioRepository.save(usuario);
 
-        return new RegisterResponseDTO(saved.getId(), saved.getNome(), saved.getEmail());
+        return converterParaDTO(usuarioSalvo);
     }
 
     public Optional<Usuario> buscarPorEmail(String email) {
@@ -47,16 +47,22 @@ public class UsuarioService {
         return usuarioRepository.findById(id);
     }
 
-    public Usuario buscarOuLancarException(Long id) {
-        return usuarioRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
-    }
-
     @Transactional
     public void desativar(Long id) {
-        Usuario usuario = buscarOuLancarException(id);
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
         usuario.setAtivo(false);
         usuarioRepository.save(usuario);
     }
-}
 
+    private RegisterResponseDTO converterParaDTO(Usuario usuario) {
+        return new RegisterResponseDTO(
+                usuario.getId(),
+                usuario.getUsername(),
+                usuario.getEmail(),
+                usuario.getAtivo(),
+                usuario.getCriadoEm(),
+                usuario.getAtualizadoEm()
+        );
+    }
+}

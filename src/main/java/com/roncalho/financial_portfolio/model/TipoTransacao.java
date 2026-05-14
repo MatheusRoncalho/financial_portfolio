@@ -2,7 +2,8 @@ package com.roncalho.financial_portfolio.model;
 
 public enum TipoTransacao {
     ENTRADA,
-    SAIDA;
+    SAIDA,
+    INVESTIMENTO;
 
     public static TipoTransacao fromTexto(String texto) {
         return switch (texto.toLowerCase()) {

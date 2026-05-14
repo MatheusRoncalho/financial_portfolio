@@ -3,15 +3,21 @@ package com.roncalho.financial_portfolio.controller;
 import com.roncalho.financial_portfolio.dto.in.TransacaoRecorrenteRequestDTO;
 import com.roncalho.financial_portfolio.dto.out.TransacaoRecorrenteResponseDTO;
 import com.roncalho.financial_portfolio.service.TransacaoRecorrenteService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/transacoes-recorrentes")
+@Tag(name = "Transações Recorrentes", description = "Operações de gerenciamento de transações recorrentes")
 public class TransacaoRecorrenteController {
 
     private final TransacaoRecorrenteService transacaoRecorrenteService;
@@ -21,53 +27,90 @@ public class TransacaoRecorrenteController {
     }
 
     @PostMapping
-    public ResponseEntity<TransacaoRecorrenteResponseDTO> criar(@Valid @RequestBody TransacaoRecorrenteRequestDTO dto) {
-        TransacaoRecorrenteResponseDTO response = transacaoRecorrenteService.criar(dto);
+    @Operation(summary = "Criar Transação Recorrente", description = "Cria uma transação recorrente para o usuário")
+    @ApiResponse(responseCode = "201", description = "Transação recorrente criada com sucesso")
+    @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    @ApiResponse(responseCode = "401", description = "Não autenticado")
+    @ApiResponse(responseCode = "500", description = "Erro de servidor")
+    public ResponseEntity<TransacaoRecorrenteResponseDTO> criarTransacaoRecorrente(@Valid @RequestBody TransacaoRecorrenteRequestDTO dto) {
+        Long usuarioId = obterUsuarioIdDoToken();
+        TransacaoRecorrenteResponseDTO response = transacaoRecorrenteService.criarTransacaoRecorrente(dto, usuarioId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
-    public ResponseEntity<List<TransacaoRecorrenteResponseDTO>> listar(
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) Long categoriaId) {
+    @Operation(summary = "Listar Transações Recorrentes", description = "Lista transações recorrentes com filtros opcionais por status e categoria")
+    @ApiResponse(responseCode = "200", description = "Transações recorrentes listadas com sucesso")
+    @ApiResponse(responseCode = "401", description = "Não autenticado")
+    @ApiResponse(responseCode = "500", description = "Erro de servidor")
+    public ResponseEntity<List<TransacaoRecorrenteResponseDTO>> listarTransacoesRecorrentes(@RequestParam(required = false) String status, @RequestParam(required = false) Long categoriaId) {
 
+        Long usuarioId = obterUsuarioIdDoToken();
         List<TransacaoRecorrenteResponseDTO> response;
 
         if (status != null) {
-            response = transacaoRecorrenteService.listarPorStatus(status);
+            response = transacaoRecorrenteService.listarTransacoesRecorrentesPorStatus(status, usuarioId);
         } else if (categoriaId != null) {
-            response = transacaoRecorrenteService.listarPorCategoria(categoriaId);
+            response = transacaoRecorrenteService.listarTransacoesRecorrentesPorCategoria(categoriaId, usuarioId);
         } else {
-            response = transacaoRecorrenteService.listar();
+            response = transacaoRecorrenteService.listarTransacoesRecorrentes(usuarioId);
         }
 
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TransacaoRecorrenteResponseDTO> obter(@PathVariable Long id) {
-        TransacaoRecorrenteResponseDTO response = transacaoRecorrenteService.obterPorId(id);
+    @Operation(summary = "Obter Transação Recorrente", description = "Obtém os detalhes de uma transação recorrente específica")
+    @ApiResponse(responseCode = "200", description = "Transação recorrente encontrada")
+    @ApiResponse(responseCode = "401", description = "Não autenticado")
+    @ApiResponse(responseCode = "404", description = "Transação recorrente não encontrada")
+    @ApiResponse(responseCode = "500", description = "Erro de servidor")
+    public ResponseEntity<TransacaoRecorrenteResponseDTO> obterTransacoesRecorrentes(@PathVariable Long id) {
+        Long usuarioId = obterUsuarioIdDoToken();
+        TransacaoRecorrenteResponseDTO response = transacaoRecorrenteService.obterTransacaoRecorrentePorId(id, usuarioId);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TransacaoRecorrenteResponseDTO> atualizar(@PathVariable Long id,
-                                                                   @Valid @RequestBody TransacaoRecorrenteRequestDTO dto) {
-        TransacaoRecorrenteResponseDTO response = transacaoRecorrenteService.atualizar(id, dto);
+    @Operation(summary = "Atualizar Transação Recorrente", description = "Atualiza uma transação recorrente existente")
+    @ApiResponse(responseCode = "200", description = "Transação recorrente atualizada com sucesso")
+    @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    @ApiResponse(responseCode = "401", description = "Não autenticado")
+    @ApiResponse(responseCode = "404", description = "Transação recorrente não encontrada")
+    @ApiResponse(responseCode = "500", description = "Erro de servidor")
+    public ResponseEntity<TransacaoRecorrenteResponseDTO> atualizarTransacoesRecorrentes(@PathVariable Long id, @Valid @RequestBody TransacaoRecorrenteRequestDTO dto) {
+        Long usuarioId = obterUsuarioIdDoToken();
+        TransacaoRecorrenteResponseDTO response = transacaoRecorrenteService.atualizarTransacaoRecorrente(id, dto, usuarioId);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        transacaoRecorrenteService.deletar(id);
+    @Operation(summary = "Deletar Transação Recorrente", description = "Remove uma transação recorrente existente")
+    @ApiResponse(responseCode = "204", description = "Transação recorrente removida com sucesso")
+    @ApiResponse(responseCode = "401", description = "Não autenticado")
+    @ApiResponse(responseCode = "404", description = "Transação recorrente não encontrada")
+    @ApiResponse(responseCode = "500", description = "Erro de servidor")
+    public ResponseEntity<Void> deletarTransacaoRecorrente(@PathVariable Long id) {
+        Long usuarioId = obterUsuarioIdDoToken();
+        transacaoRecorrenteService.deletarTransacaoRecorrente(id, usuarioId);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/status")
+    @Operation(summary = "Ativar/Desativar Transação Recorrente", description = "Altera o status de uma transação recorrente")
+    @ApiResponse(responseCode = "200", description = "Status alterado com sucesso")
+    @ApiResponse(responseCode = "400", description = "Status inválido")
+    @ApiResponse(responseCode = "401", description = "Não autenticado")
+    @ApiResponse(responseCode = "404", description = "Transação recorrente não encontrada")
+    @ApiResponse(responseCode = "500", description = "Erro de servidor")
     public ResponseEntity<TransacaoRecorrenteResponseDTO> alterarStatus(@PathVariable Long id,
                                                                        @RequestParam String status) {
-        TransacaoRecorrenteResponseDTO response = transacaoRecorrenteService.alterarStatus(id, status);
+        Long usuarioId = obterUsuarioIdDoToken();
+        TransacaoRecorrenteResponseDTO response = transacaoRecorrenteService.alterarStatus(id, status, usuarioId);
         return ResponseEntity.ok(response);
     }
-}
 
+    private Long obterUsuarioIdDoToken() {
+        return (Long) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
+    }
+}

@@ -1,6 +1,5 @@
 package com.roncalho.financial_portfolio.config;
 
-import com.roncalho.financial_portfolio.controller.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,24 +26,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                  FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             String jwt = obterTokenDoHeader(request);
 
             if (jwt != null && jwtTokenProvider.validarToken(jwt)) {
+                Long usuarioId = jwtTokenProvider.obterUsuarioIdDoToken(jwt);
                 String email = jwtTokenProvider.obterEmailDoToken(jwt);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
-                                userDetails, null, userDetails.getAuthorities());
+                                usuarioId, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception ex) {
-            logger.error("Erro ao processar token JWT: {}", ex.getMessage());
+            logger.error("Erro ao processar token JWT: {}", ex);
         }
 
         filterChain.doFilter(request, response);
