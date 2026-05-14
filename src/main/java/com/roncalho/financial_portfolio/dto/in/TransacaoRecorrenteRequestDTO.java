@@ -24,5 +24,6 @@ public record TransacaoRecorrenteRequestDTO(
         @NotNull(message = "Data inicial é obrigatória")
         LocalDateTime dataInicial,
         LocalDateTime dataFinal
+
 ) {
 }
