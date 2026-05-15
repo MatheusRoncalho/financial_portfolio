@@ -2,6 +2,9 @@ package com.roncalho.financial_portfolio.service;
 
 import com.roncalho.financial_portfolio.dto.in.CategoriaRequestDTO;
 import com.roncalho.financial_portfolio.dto.out.CategoriaResponseDTO;
+import com.roncalho.financial_portfolio.exceptions.AcessoNegadoException;
+import com.roncalho.financial_portfolio.exceptions.EntidadeJaExisteException;
+import com.roncalho.financial_portfolio.exceptions.RecursoNaoEncontradoException;
 import com.roncalho.financial_portfolio.model.Categoria;
 import com.roncalho.financial_portfolio.model.Usuario;
 import com.roncalho.financial_portfolio.repository.CategoriaRepository;
@@ -28,10 +31,10 @@ public class CategoriaService {
         String nomeCategoria = dto.nome().trim().substring(0, 1).toUpperCase()
                 + dto.nome().trim().substring(1).toLowerCase();
         Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
 
         if (categoriaRepository.findByNomeAndUsuarioId(nomeCategoria, usuarioId).isPresent()) {
-            throw new IllegalArgumentException("Categoria com este nome já existe");
+            throw new EntidadeJaExisteException("Categoria com este nome já existe");
         }
 
         Categoria categoria = Categoria.builder()
@@ -53,22 +56,22 @@ public class CategoriaService {
 
     public CategoriaResponseDTO obterCategoriaPorId(Long id, Long usuarioId) {
         Categoria categoria = categoriaRepository.findByIdAndUsuarioId(id, usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada ou acesso negado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria não encontrada"));
         return converterParaDTO(categoria);
     }
 
     @Transactional
     public CategoriaResponseDTO atualizarCategoria(Long id, CategoriaRequestDTO dto, Long usuarioId) {
         Categoria categoria = categoriaRepository.findByIdAndUsuarioId(id, usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada ou acesso negado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria não encontrada"));
 
         if (categoria.getSistema()) {
-            throw new IllegalArgumentException("Não é permitido atualizar categorias do sistema");
+            throw new AcessoNegadoException("Não é permitido atualizar categorias do sistema");
         }
 
         if (!categoria.getNome().equals(dto.nome().toLowerCase()) &&
             categoriaRepository.findByNomeAndUsuarioId(dto.nome().toLowerCase(), usuarioId).isPresent()) {
-            throw new IllegalArgumentException("Categoria com este nome já existe");
+            throw new EntidadeJaExisteException("Categoria com este nome já existe");
         }
 
         categoria.setNome(dto.nome().toLowerCase());
@@ -79,10 +82,10 @@ public class CategoriaService {
     @Transactional
     public void deletarCategoria(Long id, Long usuarioId) {
         Categoria categoria = categoriaRepository.findByIdAndUsuarioId(id, usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada ou acesso negado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria não encontrada"));
 
         if (categoria.getSistema()) {
-            throw new IllegalArgumentException("Não é permitido deletar categorias do sistema");
+            throw new AcessoNegadoException("Não é permitido deletar categorias do sistema");
         }
         categoriaRepository.deleteById(categoria.getId());
     }

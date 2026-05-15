@@ -2,6 +2,8 @@ package com.roncalho.financial_portfolio.service;
 
 import com.roncalho.financial_portfolio.dto.in.TransacaoRecorrenteRequestDTO;
 import com.roncalho.financial_portfolio.dto.out.TransacaoRecorrenteResponseDTO;
+import com.roncalho.financial_portfolio.exceptions.AcessoNegadoException;
+import com.roncalho.financial_portfolio.exceptions.RecursoNaoEncontradoException;
 import com.roncalho.financial_portfolio.model.Categoria;
 import com.roncalho.financial_portfolio.model.PeriodoRecorrencia;
 import com.roncalho.financial_portfolio.model.StatusRecorrencia;
@@ -34,10 +36,10 @@ public class TransacaoRecorrenteService {
     @Transactional
     public TransacaoRecorrenteResponseDTO criarTransacaoRecorrente(TransacaoRecorrenteRequestDTO dto, Long usuarioId) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
 
         Categoria categoria = categoriaRepository.findByIdAndUsuarioId(dto.categoriaId(), usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada ou acesso negado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria não encontrada"));
 
         TransacaoRecorrente transacaoRecorrente = TransacaoRecorrente.builder()
                 .descricao(dto.descricao())
@@ -65,17 +67,17 @@ public class TransacaoRecorrenteService {
 
     public TransacaoRecorrenteResponseDTO obterTransacaoRecorrentePorId(Long id, Long usuarioId) {
         TransacaoRecorrente transacao = transacaoRecorrenteRepository.findByIdAndUsuarioId(id, usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Transação recorrente não encontrada ou acesso negado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Transação recorrente não encontrada"));
         return converterParaDTO(transacao);
     }
 
     @Transactional
     public TransacaoRecorrenteResponseDTO atualizarTransacaoRecorrente(Long id, TransacaoRecorrenteRequestDTO dto, Long usuarioId) {
         TransacaoRecorrente transacao = transacaoRecorrenteRepository.findByIdAndUsuarioId(id, usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Transação recorrente não encontrada ou acesso negado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Transação recorrente não encontrada"));
 
         Categoria categoria = categoriaRepository.findByIdAndUsuarioId(dto.categoriaId(), usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada ou acesso negado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria não encontrada"));
 
         transacao.setDescricao(dto.descricao());
         transacao.setValor(dto.valor());
@@ -91,14 +93,14 @@ public class TransacaoRecorrenteService {
     @Transactional
     public void deletarTransacaoRecorrente(Long id, Long usuarioId) {
         TransacaoRecorrente transacao = transacaoRecorrenteRepository.findByIdAndUsuarioId(id, usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Transação recorrente não encontrada ou acesso negado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Transação recorrente não encontrada"));
         transacaoRecorrenteRepository.deleteById(transacao.getId());
     }
 
     @Transactional
     public TransacaoRecorrenteResponseDTO alterarStatus(Long id, String novoStatus, Long usuarioId) {
         TransacaoRecorrente transacao = transacaoRecorrenteRepository.findByIdAndUsuarioId(id, usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Transação recorrente não encontrada ou acesso negado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Transação recorrente não encontrada"));
 
         StatusRecorrencia status = StatusRecorrencia.valueOf(novoStatus.toUpperCase());
         transacao.setStatus(status);
