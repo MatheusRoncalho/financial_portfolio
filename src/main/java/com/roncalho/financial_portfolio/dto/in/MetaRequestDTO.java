@@ -12,5 +12,6 @@ public record MetaRequestDTO(
         @Positive(message = "O valor deve ser maior que zero")
         BigDecimal valorLimite,
         @NotBlank(message = "O período é obrigatório") String tipoPeriodo
+
 ) {
 }

@@ -5,6 +5,7 @@ import com.roncalho.financial_portfolio.dto.in.LoginRequestDTO;
 import com.roncalho.financial_portfolio.dto.in.RegisterRequestDTO;
 import com.roncalho.financial_portfolio.dto.out.LoginResponseDTO;
 import com.roncalho.financial_portfolio.dto.out.RegisterResponseDTO;
+import com.roncalho.financial_portfolio.exceptions.RecursoNaoEncontradoException;
 import com.roncalho.financial_portfolio.model.Usuario;
 import com.roncalho.financial_portfolio.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,34 +47,34 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-     @PostMapping("/login")
-     @Operation(summary = "Login de Usuários", description = "Autenticação de usuário e geração de JWT token")
-     @ApiResponse(responseCode = "200", description = "Autenticado com sucesso")
-     @ApiResponse(responseCode = "400", description = "Dados inválidos")
-     @ApiResponse(responseCode = "401", description = "Email ou senha incorretos")
-     @ApiResponse(responseCode = "500", description = "Erro de servidor")
-     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO dto) {
-         Authentication authentication = authenticationManager.authenticate(
-                 new UsernamePasswordAuthenticationToken(dto.email(), dto.senha())
-         );
+    @PostMapping("/login")
+    @Operation(summary = "Login de Usuários", description = "Autenticação de usuário e geração de JWT token")
+    @ApiResponse(responseCode = "200", description = "Autenticado com sucesso")
+    @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    @ApiResponse(responseCode = "401", description = "Email ou senha incorretos")
+    @ApiResponse(responseCode = "500", description = "Erro de servidor")
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO dto) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(dto.email(), dto.senha())
+        );
 
-         SecurityContextHolder.getContext().setAuthentication(authentication);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-         Usuario usuario = usuarioService.buscarPorEmail(dto.email())
-                 .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+        Usuario usuario = usuarioService.buscarPorEmail(dto.email())
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
 
-         String token = jwtTokenProvider.gerarToken(authentication, usuario.getId());
+        String token = jwtTokenProvider.gerarToken(authentication, usuario.getId());
 
-         LoginResponseDTO response = new LoginResponseDTO(
-                 token,
-                 usuario.getId(),
-                 usuario.getUsername(),
-                 usuario.getEmail(),
-                 usuario.getCriadoEm()
-         );
+        LoginResponseDTO response = new LoginResponseDTO(
+                token,
+                usuario.getId(),
+                usuario.getUsername(),
+                usuario.getEmail(),
+                usuario.getCriadoEm()
+        );
 
-         return ResponseEntity.ok(response);
-     }
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping("/logout")
     @Operation(summary = "Logout de Usuários", description = "Realiza o logout do usuário invalidando a sessão")
@@ -94,7 +95,7 @@ public class AuthController {
     public ResponseEntity<RegisterResponseDTO> obterUsuarioAutenticado() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Usuario usuario = usuarioService.buscarPorEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
 
         RegisterResponseDTO response = new RegisterResponseDTO(
                 usuario.getId(),

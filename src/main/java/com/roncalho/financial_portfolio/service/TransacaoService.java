@@ -2,6 +2,8 @@ package com.roncalho.financial_portfolio.service;
 
 import com.roncalho.financial_portfolio.dto.in.TransacaoRequestDTO;
 import com.roncalho.financial_portfolio.dto.out.TransacaoResponseDTO;
+import com.roncalho.financial_portfolio.exceptions.AcessoNegadoException;
+import com.roncalho.financial_portfolio.exceptions.RecursoNaoEncontradoException;
 import com.roncalho.financial_portfolio.model.Categoria;
 import com.roncalho.financial_portfolio.model.TipoTransacao;
 import com.roncalho.financial_portfolio.model.Transacao;
@@ -36,10 +38,10 @@ public class TransacaoService {
     @Transactional
     public TransacaoResponseDTO criarTransacao(TransacaoRequestDTO dto, Long usuarioId) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
 
         Categoria categoria = categoriaRepository.findByIdAndUsuarioId(dto.categoriaId(), usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada ou acesso negado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria não encontrada"));
 
         Transacao transacao = Transacao.builder()
                 .descricao(dto.descricao())
@@ -57,10 +59,10 @@ public class TransacaoService {
     @Transactional
     public TransacaoResponseDTO atualizarTransacao(Long id, TransacaoRequestDTO dto, Long usuarioId) {
         Transacao transacao = transacaoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Transação não encontrada"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Transação não encontrada"));
 
         if (!transacao.getUsuario().getId().equals(usuarioId)) {
-            throw new IllegalArgumentException("Acesso negado");
+            throw new AcessoNegadoException("Acesso negado");
         }
 
         transacao.setDescricao(dto.descricao());
@@ -70,7 +72,7 @@ public class TransacaoService {
 
         if (dto.categoriaId() != null) {
             Categoria categoria = categoriaRepository.findByIdAndUsuarioId(dto.categoriaId(), usuarioId)
-                    .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada ou acesso negado"));
+                    .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria não encontrada"));
             transacao.setCategoria(categoria);
         }
 
@@ -80,10 +82,10 @@ public class TransacaoService {
 
     public TransacaoResponseDTO obterTransacaoPorId(Long id, Long usuarioId) {
         Transacao transacao = transacaoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Transação não encontrada"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Transação não encontrada"));
 
         if (!transacao.getUsuario().getId().equals(usuarioId)) {
-            throw new IllegalArgumentException("Acesso negado");
+            throw new AcessoNegadoException("Acesso negado");
         }
 
         return converterParaDTO(transacao);
@@ -92,10 +94,10 @@ public class TransacaoService {
     @Transactional
     public void deletarTransacao(Long id, Long usuarioId) {
         Transacao transacao = transacaoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Transação não encontrada"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Transação não encontrada"));
 
         if (!transacao.getUsuario().getId().equals(usuarioId)) {
-            throw new IllegalArgumentException("Acesso negado");
+            throw new AcessoNegadoException("Acesso negado");
         }
 
         transacaoRepository.deleteById(id);

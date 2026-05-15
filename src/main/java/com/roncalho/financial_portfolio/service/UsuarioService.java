@@ -2,6 +2,8 @@ package com.roncalho.financial_portfolio.service;
 
 import com.roncalho.financial_portfolio.dto.in.RegisterRequestDTO;
 import com.roncalho.financial_portfolio.dto.out.RegisterResponseDTO;
+import com.roncalho.financial_portfolio.exceptions.EntidadeJaExisteException;
+import com.roncalho.financial_portfolio.exceptions.RecursoNaoEncontradoException;
 import com.roncalho.financial_portfolio.model.Usuario;
 import com.roncalho.financial_portfolio.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
@@ -24,7 +26,7 @@ public class UsuarioService {
     @Transactional
     public RegisterResponseDTO registrarUsuario(RegisterRequestDTO dto) {
         if (usuarioRepository.findByEmail(dto.email()).isPresent()) {
-            throw new IllegalArgumentException("Email já cadastrado");
+            throw new EntidadeJaExisteException("Email já cadastrado");
         }
 
         Usuario usuario = Usuario.builder()
@@ -50,7 +52,7 @@ public class UsuarioService {
     @Transactional
     public void desativar(Long id) {
         Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
         usuario.setAtivo(false);
         usuarioRepository.save(usuario);
     }

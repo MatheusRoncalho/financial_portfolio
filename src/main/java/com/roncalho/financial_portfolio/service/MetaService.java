@@ -2,6 +2,8 @@ package com.roncalho.financial_portfolio.service;
 
 import com.roncalho.financial_portfolio.dto.in.MetaRequestDTO;
 import com.roncalho.financial_portfolio.dto.out.MetaResponseDTO;
+import com.roncalho.financial_portfolio.exceptions.AcessoNegadoException;
+import com.roncalho.financial_portfolio.exceptions.RecursoNaoEncontradoException;
 import com.roncalho.financial_portfolio.model.Categoria;
 import com.roncalho.financial_portfolio.model.Meta;
 import com.roncalho.financial_portfolio.model.PeriodoMeta;
@@ -33,10 +35,10 @@ public class MetaService {
     @Transactional
     public MetaResponseDTO criarMeta(MetaRequestDTO dto, Long usuarioId) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
 
         Categoria categoria = categoriaRepository.findByIdAndUsuarioId(dto.categoriaId(), usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada ou acesso negado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria não encontrada"));
 
         Meta meta = Meta.builder()
                 .categoria(categoria)
@@ -57,17 +59,17 @@ public class MetaService {
 
     public MetaResponseDTO obterMetaPorId(Long id, Long usuarioId) {
         Meta meta = metaRepository.findByIdAndUsuarioId(id, usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Meta não encontrada ou acesso negado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Meta não encontrada"));
         return converterParaDTO(meta, BigDecimal.ZERO);
     }
 
     @Transactional
     public MetaResponseDTO atualizarMeta(Long id, MetaRequestDTO dto, Long usuarioId) {
         Meta meta = metaRepository.findByIdAndUsuarioId(id, usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Meta não encontrada ou acesso negado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Meta não encontrada"));
 
         Categoria categoria = categoriaRepository.findByIdAndUsuarioId(dto.categoriaId(), usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada ou acesso negado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria não encontrada"));
 
         meta.setCategoria(categoria);
         meta.setValorLimite(dto.valorLimite());
@@ -80,13 +82,13 @@ public class MetaService {
     @Transactional
     public void deletarMeta(Long id, Long usuarioId) {
         Meta meta = metaRepository.findByIdAndUsuarioId(id, usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Meta não encontrada ou acesso negado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Meta não encontrada"));
         metaRepository.deleteById(meta.getId());
     }
 
     public MetaResponseDTO obterMetaProgresso(Long id, Long usuarioId) {
         Meta meta = metaRepository.findByIdAndUsuarioId(id, usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Meta não encontrada ou acesso negado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Meta não encontrada"));
 
         // Implementar lógica de cálculo do valor atual baseado nas transações
         BigDecimal valorAtual = BigDecimal.ZERO; // TODO: calcular a partir do repository

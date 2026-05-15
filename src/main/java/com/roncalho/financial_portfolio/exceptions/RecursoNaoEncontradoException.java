@@ -1,0 +1,5 @@
+package com.roncalho.financial_portfolio.exceptions;
+
+public class RecursoNaoEncontradoException extends RuntimeException {
+    public RecursoNaoEncontradoException(String message) {super(message);}
+}
