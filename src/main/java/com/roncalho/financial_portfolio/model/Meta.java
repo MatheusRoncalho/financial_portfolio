@@ -1,5 +1,6 @@
 package com.roncalho.financial_portfolio.model;
 
+import com.roncalho.financial_portfolio.enums.PeriodoMeta;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

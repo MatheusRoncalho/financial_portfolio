@@ -1,5 +1,8 @@
 package com.roncalho.financial_portfolio.model;
 
+import com.roncalho.financial_portfolio.enums.PeriodoRecorrencia;
+import com.roncalho.financial_portfolio.enums.StatusRecorrencia;
+import com.roncalho.financial_portfolio.enums.TipoTransacao;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

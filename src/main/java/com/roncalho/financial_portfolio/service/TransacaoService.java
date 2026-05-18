@@ -2,10 +2,9 @@ package com.roncalho.financial_portfolio.service;
 
 import com.roncalho.financial_portfolio.dto.in.TransacaoRequestDTO;
 import com.roncalho.financial_portfolio.dto.out.TransacaoResponseDTO;
-import com.roncalho.financial_portfolio.exceptions.AcessoNegadoException;
 import com.roncalho.financial_portfolio.exceptions.RecursoNaoEncontradoException;
 import com.roncalho.financial_portfolio.model.Categoria;
-import com.roncalho.financial_portfolio.model.TipoTransacao;
+import com.roncalho.financial_portfolio.enums.TipoTransacao;
 import com.roncalho.financial_portfolio.model.Transacao;
 import com.roncalho.financial_portfolio.model.Usuario;
 import com.roncalho.financial_portfolio.repository.CategoriaRepository;
@@ -61,10 +60,6 @@ public class TransacaoService {
         Transacao transacao = transacaoRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Transação não encontrada"));
 
-        if (!transacao.getUsuario().getId().equals(usuarioId)) {
-            throw new AcessoNegadoException("Acesso negado");
-        }
-
         transacao.setDescricao(dto.descricao());
         transacao.setValor(dto.valor());
         transacao.setTipo(TipoTransacao.valueOf(dto.tipo().toUpperCase()));
@@ -84,10 +79,6 @@ public class TransacaoService {
         Transacao transacao = transacaoRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Transação não encontrada"));
 
-        if (!transacao.getUsuario().getId().equals(usuarioId)) {
-            throw new AcessoNegadoException("Acesso negado");
-        }
-
         return converterParaDTO(transacao);
     }
 
@@ -95,10 +86,6 @@ public class TransacaoService {
     public void deletarTransacao(Long id, Long usuarioId) {
         Transacao transacao = transacaoRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Transação não encontrada"));
-
-        if (!transacao.getUsuario().getId().equals(usuarioId)) {
-            throw new AcessoNegadoException("Acesso negado");
-        }
 
         transacaoRepository.deleteById(id);
     }

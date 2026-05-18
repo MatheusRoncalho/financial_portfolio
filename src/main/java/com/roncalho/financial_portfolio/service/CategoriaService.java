@@ -65,10 +65,6 @@ public class CategoriaService {
         Categoria categoria = categoriaRepository.findByIdAndUsuarioId(id, usuarioId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria não encontrada"));
 
-        if (categoria.getSistema()) {
-            throw new AcessoNegadoException("Não é permitido atualizar categorias do sistema");
-        }
-
         if (!categoria.getNome().equals(dto.nome().toLowerCase()) &&
             categoriaRepository.findByNomeAndUsuarioId(dto.nome().toLowerCase(), usuarioId).isPresent()) {
             throw new EntidadeJaExisteException("Categoria com este nome já existe");

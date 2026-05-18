@@ -1,7 +1,7 @@
 package com.roncalho.financial_portfolio.repository;
 
 import com.roncalho.financial_portfolio.model.Transacao;
-import com.roncalho.financial_portfolio.model.TipoTransacao;
+import com.roncalho.financial_portfolio.enums.TipoTransacao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -2,12 +2,11 @@ package com.roncalho.financial_portfolio.service;
 
 import com.roncalho.financial_portfolio.dto.in.TransacaoRecorrenteRequestDTO;
 import com.roncalho.financial_portfolio.dto.out.TransacaoRecorrenteResponseDTO;
-import com.roncalho.financial_portfolio.exceptions.AcessoNegadoException;
 import com.roncalho.financial_portfolio.exceptions.RecursoNaoEncontradoException;
 import com.roncalho.financial_portfolio.model.Categoria;
-import com.roncalho.financial_portfolio.model.PeriodoRecorrencia;
-import com.roncalho.financial_portfolio.model.StatusRecorrencia;
-import com.roncalho.financial_portfolio.model.TipoTransacao;
+import com.roncalho.financial_portfolio.enums.PeriodoRecorrencia;
+import com.roncalho.financial_portfolio.enums.StatusRecorrencia;
+import com.roncalho.financial_portfolio.enums.TipoTransacao;
 import com.roncalho.financial_portfolio.model.TransacaoRecorrente;
 import com.roncalho.financial_portfolio.model.Usuario;
 import com.roncalho.financial_portfolio.repository.CategoriaRepository;

@@ -1,7 +1,7 @@
 package com.roncalho.financial_portfolio.repository;
 
 import com.roncalho.financial_portfolio.model.TransacaoRecorrente;
-import com.roncalho.financial_portfolio.model.StatusRecorrencia;
+import com.roncalho.financial_portfolio.enums.StatusRecorrencia;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

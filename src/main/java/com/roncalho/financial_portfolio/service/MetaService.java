@@ -2,11 +2,10 @@ package com.roncalho.financial_portfolio.service;
 
 import com.roncalho.financial_portfolio.dto.in.MetaRequestDTO;
 import com.roncalho.financial_portfolio.dto.out.MetaResponseDTO;
-import com.roncalho.financial_portfolio.exceptions.AcessoNegadoException;
 import com.roncalho.financial_portfolio.exceptions.RecursoNaoEncontradoException;
 import com.roncalho.financial_portfolio.model.Categoria;
 import com.roncalho.financial_portfolio.model.Meta;
-import com.roncalho.financial_portfolio.model.PeriodoMeta;
+import com.roncalho.financial_portfolio.enums.PeriodoMeta;
 import com.roncalho.financial_portfolio.model.Usuario;
 import com.roncalho.financial_portfolio.repository.CategoriaRepository;
 import com.roncalho.financial_portfolio.repository.MetaRepository;
