@@ -43,8 +43,8 @@ public class TransacaoRecorrenteService {
         TransacaoRecorrente transacaoRecorrente = TransacaoRecorrente.builder()
                 .descricao(dto.descricao())
                 .valor(dto.valor())
-                .tipo(TipoTransacao.valueOf(dto.tipo().toUpperCase()))
-                .periodo(PeriodoRecorrencia.valueOf(dto.tipoPeriodo().toUpperCase()))
+                .tipo(dto.tipo())
+                .periodo(dto.tipoPeriodo())
                 .status(StatusRecorrencia.ATIVO)
                 .categoria(categoria)
                 .usuario(usuario)
@@ -80,8 +80,8 @@ public class TransacaoRecorrenteService {
 
         transacao.setDescricao(dto.descricao());
         transacao.setValor(dto.valor());
-        transacao.setTipo(TipoTransacao.valueOf(dto.tipo().toUpperCase()));
-        transacao.setPeriodo(PeriodoRecorrencia.valueOf(dto.tipoPeriodo().toUpperCase()));
+        transacao.setTipo(dto.tipo());
+        transacao.setPeriodo(dto.tipoPeriodo());
         transacao.setCategoria(categoria);
         transacao.setDataFinal(dto.dataFinal() != null ? dto.dataFinal() : null);
 
@@ -126,11 +126,11 @@ public class TransacaoRecorrenteService {
                 transacao.getId(),
                 transacao.getDescricao(),
                 transacao.getValor(),
-                transacao.getTipo().toString(),
+                transacao.getTipo(),
                 transacao.getCategoria().getId(),
                 transacao.getCategoria().getNome(),
-                transacao.getPeriodo().toString(),
-                transacao.getStatus().toString(),
+                transacao.getPeriodo(),
+                transacao.getStatus(),
                 transacao.getDataInicial(),
                 transacao.getDataFinal(),
                 transacao.getProximaTransacao(),

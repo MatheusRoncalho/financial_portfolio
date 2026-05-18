@@ -121,7 +121,7 @@ public class MetaService {
                 meta.getCategoria().getNome(),
                 meta.getValorLimite(),
                 BigDecimal.ZERO, // valorAtual - será calculado
-                meta.getPeriodo().toString(),
+                meta.getPeriodo(),
                 percentual,
                 meta.getCriadoEm()
         );

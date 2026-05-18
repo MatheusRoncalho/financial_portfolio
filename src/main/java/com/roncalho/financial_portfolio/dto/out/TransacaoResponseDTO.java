@@ -1,5 +1,6 @@
 package com.roncalho.financial_portfolio.dto.out;
 
+import com.roncalho.financial_portfolio.enums.TipoTransacao;
 import com.roncalho.financial_portfolio.model.Transacao;
 
 import java.math.BigDecimal;
@@ -9,7 +10,7 @@ public record TransacaoResponseDTO(
         Long id,
         String descricao,
         BigDecimal valor,
-        String tipo,
+        TipoTransacao tipo,
         Long categoriaId,
         String categoriaNome,
         LocalDateTime dataTransacao,

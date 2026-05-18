@@ -45,7 +45,7 @@ public class TransacaoService {
         Transacao transacao = Transacao.builder()
                 .descricao(dto.descricao())
                 .valor(dto.valor())
-                .tipo(TipoTransacao.valueOf(dto.tipo().toUpperCase()))
+                .tipo(dto.tipo())
                 .dataTransacao(dto.dataTransacao() != null ? dto.dataTransacao() : null)
                 .categoria(categoria)
                 .usuario(usuario)
@@ -57,12 +57,12 @@ public class TransacaoService {
 
     @Transactional
     public TransacaoResponseDTO atualizarTransacao(Long id, TransacaoRequestDTO dto, Long usuarioId) {
-        Transacao transacao = transacaoRepository.findById(id)
+        Transacao transacao = transacaoRepository.findByIdAndUsuarioId(id, usuarioId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Transação não encontrada"));
 
-        transacao.setDescricao(dto.descricao());
-        transacao.setValor(dto.valor());
-        transacao.setTipo(TipoTransacao.valueOf(dto.tipo().toUpperCase()));
+        transacao.setDescricao(dto.descricao() != null ? dto.descricao() : transacao.getDescricao());
+        transacao.setValor(dto.valor() != null ? dto.valor() : transacao.getValor());
+        transacao.setTipo(dto.tipo() != null ? dto.tipo() : transacao.getTipo());
         transacao.setDataTransacao(dto.dataTransacao() != null ? dto.dataTransacao() : transacao.getDataTransacao());
 
         if (dto.categoriaId() != null) {
@@ -90,8 +90,8 @@ public class TransacaoService {
         transacaoRepository.deleteById(id);
     }
 
-    public List<TransacaoResponseDTO> listarTransacoes(Long usuarioId, LocalDate inicio, LocalDate fim,
-                                                        Long categoriaId, String tipo) {
+    public List<TransacaoResponseDTO> listarTransacoes(Long usuarioId, LocalDate inicio, LocalDate fim, Long categoriaId, String tipo) {
+
         List<Transacao> transacoes;
 
         if (inicio != null && fim != null && categoriaId != null && tipo != null) {
@@ -130,7 +130,7 @@ public class TransacaoService {
                 transacao.getId(),
                 transacao.getDescricao(),
                 transacao.getValor(),
-                transacao.getTipo().toString(),
+                transacao.getTipo(),
                 transacao.getCategoria().getId(),
                 transacao.getCategoria().getNome(),
                 transacao.getDataTransacao() != null ? transacao.getDataTransacao() : null,

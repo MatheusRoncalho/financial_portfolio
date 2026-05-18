@@ -7,9 +7,12 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TransacaoRepository extends JpaRepository<Transacao, Long> {
+
+    Optional<Transacao> findByIdAndUsuarioId(Long id, Long usuarioId);
 
     List<Transacao> findByUsuarioId(Long usuarioId);
 

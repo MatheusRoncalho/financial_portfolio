@@ -1,5 +1,6 @@
 package com.roncalho.financial_portfolio.dto.in;
 
+import com.roncalho.financial_portfolio.enums.TipoTransacao;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -15,8 +16,8 @@ public record TransacaoRequestDTO(
         @NotNull(message = "Valor é obrigatório")
         @Positive(message = "O valor deve ser maior que zero")
         BigDecimal valor,
-        @NotBlank(message = "Tipo de transação é obrigatório")
-        String tipo,
+        @NotNull(message = "Tipo de transação é obrigatório")
+        TipoTransacao tipo,
         LocalDateTime dataTransacao,
         @NotNull(message = "Categoria é obrigatória")
         Long categoriaId
