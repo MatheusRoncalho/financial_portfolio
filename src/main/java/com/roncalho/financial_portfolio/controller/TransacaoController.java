@@ -34,8 +34,8 @@ public class TransacaoController {
     @ApiResponse(responseCode = "400", description = "Dados inválidos")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @ApiResponse(responseCode = "500", description = "Erro de servidor")
-    public ResponseEntity<TransacaoResponseDTO> criarTransacao(@Valid @RequestBody TransacaoRequestDTO dto) { //Caso de BO, pedir authentication aqui
-        Long usuarioId = obterUsuarioIdDoToken(); //colocar authentication aqui
+    public ResponseEntity<TransacaoResponseDTO> criarTransacao(@Valid @RequestBody TransacaoRequestDTO dto) {
+        Long usuarioId = obterUsuarioIdDoToken();
         TransacaoResponseDTO response = transacaoService.criarTransacao(dto, usuarioId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
