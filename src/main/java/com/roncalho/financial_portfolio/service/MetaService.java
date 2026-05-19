@@ -90,7 +90,7 @@ public class MetaService {
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Meta não encontrada"));
 
         // Implementar lógica de cálculo do valor atual baseado nas transações
-        BigDecimal valorAtual = BigDecimal.ZERO; // TODO: calcular a partir do repository
+        BigDecimal valorAtual = BigDecimal.ZERO; // TODO: calcular a partir do repository "query que pega todos os valores das transações com a categoriaID que já ocorrerão dentro do periodo da meta (inicio / fim), somar e retornar"
         BigDecimal percentual = calcularPercentual(valorAtual, meta.getValorLimite());
 
         return converterParaDTO(meta, percentual);
@@ -120,9 +120,9 @@ public class MetaService {
                 meta.getCategoria().getId(),
                 meta.getCategoria().getNome(),
                 meta.getValorLimite(),
-                BigDecimal.ZERO, // valorAtual - será calculado
+                BigDecimal.ZERO, // valorAtual - será calculado //TODO: calcular Valor
                 meta.getPeriodo(),
-                percentual,
+                percentual, //TODO: calcular percentual
                 meta.getCriadoEm()
         );
     }

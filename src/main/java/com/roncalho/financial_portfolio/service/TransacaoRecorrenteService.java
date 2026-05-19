@@ -96,6 +96,7 @@ public class TransacaoRecorrenteService {
         transacaoRecorrenteRepository.deleteById(transacao.getId());
     }
 
+    //TODO: verificar lógica
     @Transactional
     public TransacaoRecorrenteResponseDTO alterarStatus(Long id, String novoStatus, Long usuarioId) {
         TransacaoRecorrente transacao = transacaoRecorrenteRepository.findByIdAndUsuarioId(id, usuarioId)
@@ -104,8 +105,8 @@ public class TransacaoRecorrenteService {
         StatusRecorrencia status = StatusRecorrencia.valueOf(novoStatus.toUpperCase());
         transacao.setStatus(status);
 
-        TransacaoRecorrente updated = transacaoRecorrenteRepository.save(transacao);
-        return converterParaDTO(updated);
+        TransacaoRecorrente transacaoRecorrenteAtualizada = transacaoRecorrenteRepository.save(transacao);
+        return converterParaDTO(transacaoRecorrenteAtualizada);
     }
 
     public List<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentesPorStatus(String status, Long usuarioId) {
@@ -138,6 +139,7 @@ public class TransacaoRecorrenteService {
         );
     }
 
+    //TODO: Verificar lógica da próxima transação
     private LocalDateTime calcularProximaTransacao(TransacaoRecorrente transacaoRecorrente) {
         if (transacaoRecorrente.getStatus() != StatusRecorrencia.ATIVO) {
             return null;

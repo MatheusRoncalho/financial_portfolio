@@ -90,12 +90,12 @@ public class TransacaoService {
         transacaoRepository.deleteById(id);
     }
 
+    // TODO: Listar com paginação e filtros (Specification Pattern)
     public List<TransacaoResponseDTO> listarTransacoes(Long usuarioId, LocalDate inicio, LocalDate fim, Long categoriaId, String tipo) {
 
         List<Transacao> transacoes;
 
         if (inicio != null && fim != null && categoriaId != null && tipo != null) {
-            // Filtro completo
             LocalDateTime inicioDatetime = inicio.atStartOfDay();
             LocalDateTime fimDatetime = fim.atTime(LocalTime.MAX);
             TipoTransacao tipoEnum = TipoTransacao.valueOf(tipo.toUpperCase());
@@ -104,19 +104,15 @@ public class TransacaoService {
                     .filter(t -> t.getCategoria().getId().equals(categoriaId) && t.getTipo().equals(tipoEnum))
                     .collect(Collectors.toList());
         } else if (inicio != null && fim != null) {
-            // Apenas período
             LocalDateTime inicioDatetime = inicio.atStartOfDay();
             LocalDateTime fimDatetime = fim.atTime(LocalTime.MAX);
             transacoes = transacaoRepository.findByUsuarioIdAndDataTransacaoBetween(usuarioId, inicioDatetime, fimDatetime);
         } else if (categoriaId != null) {
-            // Apenas categoria
             transacoes = transacaoRepository.findByUsuarioIdAndCategoriaId(usuarioId, categoriaId);
         } else if (tipo != null) {
-            // Apenas tipo
             TipoTransacao tipoEnum = TipoTransacao.valueOf(tipo.toUpperCase());
             transacoes = transacaoRepository.findByUsuarioIdAndTipo(usuarioId, tipoEnum);
         } else {
-            // Sem filtros
             transacoes = transacaoRepository.findByUsuarioId(usuarioId);
         }
 

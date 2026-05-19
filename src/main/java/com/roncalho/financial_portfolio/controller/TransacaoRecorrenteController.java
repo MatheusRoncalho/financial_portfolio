@@ -38,6 +38,7 @@ public class TransacaoRecorrenteController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    //TODO: Melhorar esses filtros
     @GetMapping
     @Operation(summary = "Listar Transações Recorrentes", description = "Lista transações recorrentes com filtros opcionais por status e categoria")
     @ApiResponse(responseCode = "200", description = "Transações recorrentes listadas com sucesso")
