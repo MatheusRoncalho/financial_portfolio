@@ -1,0 +1,41 @@
+INSERT INTO usuarios (username, email, senha) VALUES ('Matheus', 'matheus@email.com', 'senha123');
+
+INSERT INTO transacoes (
+    categoria_id,
+    usuario_id,
+    descricao,
+    valor,
+    tipo,
+    data_transacao
+) VALUES (11, 1, 'Salário empresa', 4500.00, 'ENTRADA', '2026-01-05 08:00:00'),
+(1, 1, 'Compras no mercado', 320.50, 'SAIDA', '2026-01-06 18:30:00'),
+(7, 1, 'Pagamento aluguel', 1400.00, 'SAIDA', '2026-01-07 09:00:00'),
+(3, 1, 'Gasolina carro', 220.00, 'SAIDA', '2026-01-09 14:20:00'),
+(2, 1, 'Jantar restaurante', 89.90, 'SAIDA', '2026-01-10 20:10:00'),
+(6, 1, 'Cinema shopping', 55.00, 'SAIDA', '2026-01-12 21:00:00'),
+(9, 1, 'Medicamentos', 75.40, 'SAIDA', '2026-01-14 10:30:00'),
+(5, 1, 'Curso Java', 299.90, 'SAIDA', '2026-01-15 16:00:00'),
+(12, 1, 'Venda cadeira usada', 300.00, 'ENTRADA', '2026-01-18 13:00:00'),
+(8, 1, 'Netflix mensalidade', 39.90, 'SAIDA', '2026-01-20 22:00:00'),
+
+(11, 1, 'Salário empresa', 4500.00, 'ENTRADA', '2026-02-05 08:00:00'),
+(1, 1, 'Compras supermercado', 410.75, 'SAIDA', '2026-02-06 19:00:00'),
+(3, 1, 'Uber trabalho', 48.20, 'SAIDA', '2026-02-07 08:40:00'),
+(2, 1, 'Hamburgueria', 64.90, 'SAIDA', '2026-02-09 21:15:00'),
+(10, 1, 'Compra camiseta', 129.90, 'SAIDA', '2026-02-11 15:00:00'),
+(4, 1, 'Consulta médica', 180.00, 'SAIDA', '2026-02-13 11:20:00'),
+(12, 1, 'Freelance API', 850.00, 'ENTRADA', '2026-02-15 18:00:00'),
+(6, 1, 'Boliche amigos', 95.00, 'SAIDA', '2026-02-18 22:30:00'),
+(8, 1, 'Spotify premium', 21.90, 'SAIDA', '2026-02-20 09:00:00'),
+(7, 1, 'Conta energia', 210.45, 'SAIDA', '2026-02-22 17:40:00'),
+
+(11, 1, 'Salário empresa', 4500.00, 'ENTRADA', '2026-03-05 08:00:00'),
+(1, 1, 'Mercado atacado', 530.10, 'SAIDA', '2026-03-06 18:20:00'),
+(3, 1, 'Combustível', 240.00, 'SAIDA', '2026-03-08 13:00:00'),
+(5, 1, 'Curso Spring Boot', 399.00, 'SAIDA', '2026-03-10 14:00:00'),
+(12, 1, 'Venda monitor', 950.00, 'ENTRADA', '2026-03-12 16:10:00'),
+(2, 1, 'Pizza fim de semana', 78.50, 'SAIDA', '2026-03-13 20:45:00'),
+(9, 1, 'Farmácia', 62.80, 'SAIDA', '2026-03-15 10:15:00'),
+(10, 1, 'Tênis novo', 350.00, 'SAIDA', '2026-03-18 17:00:00'),
+(6, 1, 'Show música', 180.00, 'SAIDA', '2026-03-20 23:00:00'),
+(12, 1, 'Bônus projeto', 1200.00, 'ENTRADA', '2026-03-25 12:00:00');
