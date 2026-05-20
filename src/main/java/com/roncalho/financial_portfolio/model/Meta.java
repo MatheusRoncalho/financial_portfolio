@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,9 +24,11 @@ public class Meta {
     @Column(name = "valor_limite", nullable = false, precision = 10, scale = 2)
     private BigDecimal valorLimite;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private PeriodoMeta periodo;
+    @Column(name = "data_inicio", nullable = false)
+    private LocalDate dataInicio;
+
+    @Column(name = "data_fim", nullable = false)
+    private LocalDate dataFim;
 
     @CreationTimestamp
     @Column(name = "criado_em")

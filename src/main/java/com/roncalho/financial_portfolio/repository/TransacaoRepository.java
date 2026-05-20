@@ -1,15 +1,18 @@
 package com.roncalho.financial_portfolio.repository;
 
 import com.roncalho.financial_portfolio.model.Transacao;
-import com.roncalho.financial_portfolio.model.TipoTransacao;
+import com.roncalho.financial_portfolio.enums.TipoTransacao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TransacaoRepository extends JpaRepository<Transacao, Long> {
+
+    Optional<Transacao> findByIdAndUsuarioId(Long id, Long usuarioId);
 
     List<Transacao> findByUsuarioId(Long usuarioId);
 

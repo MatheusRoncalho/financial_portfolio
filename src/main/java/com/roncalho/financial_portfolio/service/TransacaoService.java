@@ -2,10 +2,9 @@ package com.roncalho.financial_portfolio.service;
 
 import com.roncalho.financial_portfolio.dto.in.TransacaoRequestDTO;
 import com.roncalho.financial_portfolio.dto.out.TransacaoResponseDTO;
-import com.roncalho.financial_portfolio.exceptions.AcessoNegadoException;
 import com.roncalho.financial_portfolio.exceptions.RecursoNaoEncontradoException;
 import com.roncalho.financial_portfolio.model.Categoria;
-import com.roncalho.financial_portfolio.model.TipoTransacao;
+import com.roncalho.financial_portfolio.enums.TipoTransacao;
 import com.roncalho.financial_portfolio.model.Transacao;
 import com.roncalho.financial_portfolio.model.Usuario;
 import com.roncalho.financial_portfolio.repository.CategoriaRepository;
@@ -15,8 +14,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,7 +43,7 @@ public class TransacaoService {
         Transacao transacao = Transacao.builder()
                 .descricao(dto.descricao())
                 .valor(dto.valor())
-                .tipo(TipoTransacao.valueOf(dto.tipo().toUpperCase()))
+                .tipo(dto.tipo())
                 .dataTransacao(dto.dataTransacao() != null ? dto.dataTransacao() : null)
                 .categoria(categoria)
                 .usuario(usuario)
@@ -58,16 +55,12 @@ public class TransacaoService {
 
     @Transactional
     public TransacaoResponseDTO atualizarTransacao(Long id, TransacaoRequestDTO dto, Long usuarioId) {
-        Transacao transacao = transacaoRepository.findById(id)
+        Transacao transacao = transacaoRepository.findByIdAndUsuarioId(id, usuarioId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Transação não encontrada"));
 
-        if (!transacao.getUsuario().getId().equals(usuarioId)) {
-            throw new AcessoNegadoException("Acesso negado");
-        }
-
-        transacao.setDescricao(dto.descricao());
-        transacao.setValor(dto.valor());
-        transacao.setTipo(TipoTransacao.valueOf(dto.tipo().toUpperCase()));
+        transacao.setDescricao(dto.descricao() != null ? dto.descricao() : transacao.getDescricao());
+        transacao.setValor(dto.valor() != null ? dto.valor() : transacao.getValor());
+        transacao.setTipo(dto.tipo() != null ? dto.tipo() : transacao.getTipo());
         transacao.setDataTransacao(dto.dataTransacao() != null ? dto.dataTransacao() : transacao.getDataTransacao());
 
         if (dto.categoriaId() != null) {
@@ -84,10 +77,6 @@ public class TransacaoService {
         Transacao transacao = transacaoRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Transação não encontrada"));
 
-        if (!transacao.getUsuario().getId().equals(usuarioId)) {
-            throw new AcessoNegadoException("Acesso negado");
-        }
-
         return converterParaDTO(transacao);
     }
 
@@ -96,40 +85,35 @@ public class TransacaoService {
         Transacao transacao = transacaoRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Transação não encontrada"));
 
-        if (!transacao.getUsuario().getId().equals(usuarioId)) {
-            throw new AcessoNegadoException("Acesso negado");
-        }
-
         transacaoRepository.deleteById(id);
     }
 
-    public List<TransacaoResponseDTO> listarTransacoes(Long usuarioId, LocalDate inicio, LocalDate fim,
-                                                        Long categoriaId, String tipo) {
+    // TODO: Listar com paginação e filtros (Specification Pattern)
+    public List<TransacaoResponseDTO> listarTransacoes(Long usuarioId, LocalDate inicio, LocalDate fim, Long categoriaId, String tipo) {
+
         List<Transacao> transacoes;
 
         if (inicio != null && fim != null && categoriaId != null && tipo != null) {
-            // Filtro completo
-            LocalDateTime inicioDatetime = inicio.atStartOfDay();
-            LocalDateTime fimDatetime = fim.atTime(LocalTime.MAX);
             TipoTransacao tipoEnum = TipoTransacao.valueOf(tipo.toUpperCase());
-            transacoes = transacaoRepository.findByUsuarioIdAndDataTransacaoBetween(usuarioId, inicioDatetime, fimDatetime)
-                    .stream()
-                    .filter(t -> t.getCategoria().getId().equals(categoriaId) && t.getTipo().equals(tipoEnum))
+            transacoes = transacaoRepository.findByUsuarioId(usuarioId).stream()
+                    .filter(t -> t.getDataTransacao() != null
+                            && !t.getDataTransacao().isBefore(inicio)
+                            && !t.getDataTransacao().isAfter(fim)
+                            && t.getCategoria().getId().equals(categoriaId)
+                            && t.getTipo().equals(tipoEnum))
                     .collect(Collectors.toList());
         } else if (inicio != null && fim != null) {
-            // Apenas período
-            LocalDateTime inicioDatetime = inicio.atStartOfDay();
-            LocalDateTime fimDatetime = fim.atTime(LocalTime.MAX);
-            transacoes = transacaoRepository.findByUsuarioIdAndDataTransacaoBetween(usuarioId, inicioDatetime, fimDatetime);
+            transacoes = transacaoRepository.findByUsuarioId(usuarioId).stream()
+                    .filter(t -> t.getDataTransacao() != null
+                            && !t.getDataTransacao().isBefore(inicio)
+                            && !t.getDataTransacao().isAfter(fim))
+                    .collect(Collectors.toList());
         } else if (categoriaId != null) {
-            // Apenas categoria
             transacoes = transacaoRepository.findByUsuarioIdAndCategoriaId(usuarioId, categoriaId);
         } else if (tipo != null) {
-            // Apenas tipo
             TipoTransacao tipoEnum = TipoTransacao.valueOf(tipo.toUpperCase());
             transacoes = transacaoRepository.findByUsuarioIdAndTipo(usuarioId, tipoEnum);
         } else {
-            // Sem filtros
             transacoes = transacaoRepository.findByUsuarioId(usuarioId);
         }
 
@@ -143,7 +127,7 @@ public class TransacaoService {
                 transacao.getId(),
                 transacao.getDescricao(),
                 transacao.getValor(),
-                transacao.getTipo().toString(),
+                transacao.getTipo(),
                 transacao.getCategoria().getId(),
                 transacao.getCategoria().getNome(),
                 transacao.getDataTransacao() != null ? transacao.getDataTransacao() : null,

@@ -1,10 +1,14 @@
 package com.roncalho.financial_portfolio.model;
 
+import com.roncalho.financial_portfolio.enums.PeriodoRecorrencia;
+import com.roncalho.financial_portfolio.enums.StatusRecorrencia;
+import com.roncalho.financial_portfolio.enums.TipoTransacao;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -39,13 +43,13 @@ public class TransacaoRecorrente {
     private StatusRecorrencia status;
 
     @Column(name = "data_inicial", nullable = false)
-    private LocalDateTime dataInicial;
+    private LocalDate dataInicial;
 
     @Column(name = "data_final")
-    private LocalDateTime dataFinal;
+    private LocalDate dataFinal;
 
     @Column(name = "proxima_transacao", nullable = false)
-    private LocalDateTime proximaTransacao;
+    private LocalDate proximaTransacao;
 
     @CreationTimestamp
     @Column(name = "criado_em")

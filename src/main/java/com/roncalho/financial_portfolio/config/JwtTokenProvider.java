@@ -23,7 +23,7 @@ public class JwtTokenProvider {
     private long jwtExpirationMs;
 
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+        return Keys.hmacShaKeyFor(Base64.getDecoder().decode(jwtSecret));
     }
 
     public String gerarToken(Authentication authentication, Long usuarioId) {

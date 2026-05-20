@@ -25,4 +25,3 @@ CREATE INDEX idx_recorrentes_usuario ON transacoes_recorrentes(usuario_id);
 CREATE INDEX idx_recorrentes_categoria ON transacoes_recorrentes(categoria_id);
 CREATE INDEX idx_recorrentes_usuario_categoria ON transacoes_recorrentes(usuario_id, categoria_id);
 CREATE INDEX idx_recorrentes_status ON transacoes_recorrentes(status);
-CREATE INDEX idx_recorrentes_ativas ON transacoes_recorrentes(status, proxima_transacao) WHERE status = 'ATIVO';

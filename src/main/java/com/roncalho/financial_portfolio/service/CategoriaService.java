@@ -65,16 +65,18 @@ public class CategoriaService {
         Categoria categoria = categoriaRepository.findByIdAndUsuarioId(id, usuarioId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria não encontrada"));
 
+        String nomeCategoria = dto.nome().trim().substring(0, 1).toUpperCase()
+                + dto.nome().trim().substring(1).toLowerCase();
+
         if (categoria.getSistema()) {
-            throw new AcessoNegadoException("Não é permitido atualizar categorias do sistema");
+            throw new AcessoNegadoException("Não é permitido atualizar categorias criadas pelo sistema");
         }
 
-        if (!categoria.getNome().equals(dto.nome().toLowerCase()) &&
-            categoriaRepository.findByNomeAndUsuarioId(dto.nome().toLowerCase(), usuarioId).isPresent()) {
+        if (categoriaRepository.findByNomeAndUsuarioId(nomeCategoria, usuarioId).isPresent()) {
             throw new EntidadeJaExisteException("Categoria com este nome já existe");
         }
 
-        categoria.setNome(dto.nome().toLowerCase());
+        categoria.setNome(nomeCategoria);
         Categoria categoriaAtualizada = categoriaRepository.save(categoria);
         return converterParaDTO(categoriaAtualizada);
     }

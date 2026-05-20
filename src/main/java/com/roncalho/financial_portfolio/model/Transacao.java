@@ -1,10 +1,12 @@
 package com.roncalho.financial_portfolio.model;
 
+import com.roncalho.financial_portfolio.enums.TipoTransacao;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -31,7 +33,7 @@ public class Transacao {
     private TipoTransacao tipo;
 
     @Column(name = "data_transacao")
-    private LocalDateTime dataTransacao;
+    private LocalDate dataTransacao;
 
     @CreationTimestamp
     @Column(name = "criado_em")
