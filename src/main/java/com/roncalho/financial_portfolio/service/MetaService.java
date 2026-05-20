@@ -47,7 +47,11 @@ public class MetaService {
                 .build();
 
         Meta metaSalva = metaRepository.save(meta);
-        return converterParaDTO(metaSalva, BigDecimal.ZERO);
+
+        BigDecimal valorAtual = obterValorAtualDaMeta(metaSalva, usuarioId);
+        BigDecimal porcentagem = calcularPercentual(valorAtual, metaSalva.getValorLimite());
+
+        return converterParaDTO(metaSalva, valorAtual, porcentagem);
     }
 
     public List<MetaResponseDTO> listarMetas(Long usuarioId) {
@@ -109,6 +113,15 @@ public class MetaService {
                 .collect(Collectors.toList());
     }
 
+    private BigDecimal obterValorAtualDaMeta(Meta meta, Long usuarioId) {
+        return metaRepository.calcularTotalGastoNoPeriodo(
+                meta.getCategoria().getId(),
+                usuarioId,
+                meta.getDataInicio(),
+                meta.getDataFim()
+        );
+    }
+
     private BigDecimal calcularPercentual(BigDecimal valorAtual, BigDecimal valorLimite) {
         if (valorLimite.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
@@ -117,13 +130,13 @@ public class MetaService {
                 .multiply(new BigDecimal(100));
     }
 
-    private MetaResponseDTO converterParaDTO(Meta meta, BigDecimal percentual) {
+    private MetaResponseDTO converterParaDTO(Meta meta,BigDecimal valorAtual, BigDecimal percentual) {
         return new MetaResponseDTO(
                 meta.getId(),
                 meta.getCategoria().getId(),
                 meta.getCategoria().getNome(),
                 meta.getValorLimite(),
-                BigDecimal.ZERO, // valorAtual - será calculado //TODO: calcular Valor
+                valorAtual, // valorAtual - será calculado //TODO: calcular Valor
                 meta.getDataInicio(),
                 meta.getDataFim(),
                 percentual, //TODO: calcular percentual
