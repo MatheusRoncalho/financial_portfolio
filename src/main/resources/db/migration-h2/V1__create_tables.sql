@@ -24,7 +24,7 @@ CREATE TABLE transacoes (
                             descricao VARCHAR(255),
                             valor DECIMAL(10,2) NOT NULL CHECK (valor > 0),
                             tipo VARCHAR(10) NOT NULL CHECK (tipo IN ('ENTRADA', 'SAIDA', 'INVESTIMENTO')),
-                            data_transacao TIMESTAMP,
+                            data_transacao DATE NOT NULL,
                             criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -33,8 +33,8 @@ CREATE TABLE metas (
                        usuario_id BIGINT NOT NULL REFERENCES usuarios(id),
                        categoria_id BIGINT NOT NULL REFERENCES categorias(id),
                        valor_limite DECIMAL(10,2) NOT NULL CHECK (valor_limite > 0),
-                       data_inicio TIMESTAMP NOT NULL,
-                       data_fim TIMESTAMP NOT NULL,
+                       data_inicio DATE NOT NULL,
+                       data_fim DATE NOT NULL,
                        criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -44,11 +44,11 @@ CREATE TABLE transacoes_recorrentes (
                             categoria_id BIGINT NOT NULL REFERENCES categorias(id),
                             descricao VARCHAR(255),
                             valor DECIMAL(10,2) NOT NULL CHECK (valor > 0),
-                            tipo VARCHAR(10) NOT NULL CHECK (tipo IN ('ENTRADA', 'SAIDA')),
+                            tipo VARCHAR(10) NOT NULL CHECK (tipo IN ('ENTRADA', 'SAIDA', 'INVESTIMENTO')),
                             periodo VARCHAR(20) NOT NULL CHECK (periodo IN ('DIARIA', 'SEMANAL', 'MENSAL', 'ANUAL')),
                             status VARCHAR(10) NOT NULL CHECK (status IN ('ATIVO', 'CANCELADO')),
-                            data_inicial TIMESTAMP NOT NULL,
-                            data_final TIMESTAMP,
-                            proxima_transacao TIMESTAMP NOT NULL,
+                            data_inicial DATE NOT NULL,
+                            data_final DATE,
+                            proxima_transacao DATE NOT NULL,
                             criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

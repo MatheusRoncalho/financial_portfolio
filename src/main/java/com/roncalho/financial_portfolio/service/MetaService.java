@@ -90,13 +90,13 @@ public class MetaService {
         Meta meta = metaRepository.findByIdAndUsuarioId(id, usuarioId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Meta não encontrada"));
 
-        BigDecimal totalGasto = metaRepository.calcularTotalGastoNoPeriodo(meta.getCategoria().getId(),
+        //BigDecimal totalGasto = metaRepository.calcularTotalGastoNoPeriodo(meta.getCategoria().getId(),
 
         // Implementar lógica de cálculo do valor atual baseado nas transações
-        BigDecimal valorAtual = totalGasto; // TODO: calcular a partir do repository "query que pega todos os valores das transações com a categoriaID que já ocorrerão dentro do periodo da meta (inicio / fim), somar e retornar"
-        BigDecimal percentual = calcularPercentual(valorAtual, meta.getValorLimite());
+        //BigDecimal valorAtual = BigDecimal.ZERO; // TODO: calcular a partir do repository "query que pega todos os valores das transações com a categoriaID que já ocorrerão dentro do periodo da meta (inicio / fim), somar e retornar"
+        //calcularPercentual(valorAtual, meta.getValorLimite());
 
-        return converterParaDTO(meta, percentual);
+        return converterParaDTO(meta, BigDecimal.ZERO);
     }
 
     public List<MetaResponseDTO> obterMetaProgressoTodos(Long usuarioId) {

@@ -1,33 +1,28 @@
+-- Categorias
 CREATE INDEX idx_categorias_usuario ON categorias(usuario_id);
+CREATE UNIQUE INDEX uq_categorias_usuario_nome ON categorias(usuario_id, nome);
 
+-- Transações
 CREATE INDEX idx_transacoes_usuario ON transacoes(usuario_id);
-
 CREATE INDEX idx_transacoes_categoria ON transacoes(categoria_id);
-
 CREATE INDEX idx_transacoes_data ON transacoes(data_transacao);
-
 CREATE INDEX idx_transacoes_usuario_data ON transacoes(usuario_id, data_transacao);
-
 CREATE INDEX idx_transacoes_usuario_categoria ON transacoes(usuario_id, categoria_id);
+CREATE INDEX idx_transacoes_tipo ON transacoes(tipo);
+CREATE INDEX idx_transacoes_usuario_categoria_data ON transacoes(usuario_id, categoria_id, data_transacao);
 
-CREATE INDEX idx_usuarios_telegram ON usuarios(telegram_id);
-
-CREATE INDEX idx_recorrentes_usuario ON transacoes_recorrentes(usuario_id);
-
-CREATE INDEX idx_recorrentes_proxima_transacao ON transacoes_recorrentes(proxima_transacao);
-
-CREATE INDEX idx_recorrentes_status_transacao ON transacoes_recorrentes(status, proxima_transacao);
-
+-- Metas
 CREATE INDEX idx_metas_usuario ON metas(usuario_id);
+CREATE INDEX idx_metas_categoria ON metas(categoria_id);
+CREATE INDEX idx_metas_data_fim ON metas(data_fim);
+CREATE INDEX idx_metas_usuario_data_fim ON metas(usuario_id, data_fim);
 
-CREATE INDEX idx_metas_usuario_categoria ON metas(usuario_id, categoria_id);
-
-CREATE UNIQUE INDEX uq_metas_usuario_categoria_periodo ON metas(usuario_id, categoria_id, periodo);
-
-CREATE INDEX idx_recorrencia_proxima_transacao ON transacoes_recorrentes(proxima_transacao);
-
-CREATE INDEX idx_recorrencia_status_proxima_transacao ON transacoes_recorrentes(status, proxima_transacao);
-
-CREATE INDEX idx_recorrencia_usuario_proxima_transacao ON transacoes_recorrentes(usuario_id, proxima_transacao);
-
-CREATE UNIQUE INDEX uq_categoria_usuario_nome ON categorias(usuario_id, nome);
+-- Transações Recorrentes
+CREATE INDEX idx_recorrentes_proxima_transacao ON transacoes_recorrentes(proxima_transacao);
+CREATE INDEX idx_recorrentes_status_proxima ON transacoes_recorrentes(status, proxima_transacao);
+CREATE INDEX idx_recorrentes_usuario_proxima ON transacoes_recorrentes(usuario_id, proxima_transacao);
+CREATE INDEX idx_recorrentes_usuario ON transacoes_recorrentes(usuario_id);
+CREATE INDEX idx_recorrentes_categoria ON transacoes_recorrentes(categoria_id);
+CREATE INDEX idx_recorrentes_usuario_categoria ON transacoes_recorrentes(usuario_id, categoria_id);
+CREATE INDEX idx_recorrentes_status ON transacoes_recorrentes(status);
+CREATE INDEX idx_recorrentes_ativas ON transacoes_recorrentes(status, proxima_transacao) WHERE status = 'ATIVO';
