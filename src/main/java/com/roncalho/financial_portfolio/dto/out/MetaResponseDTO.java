@@ -1,8 +1,7 @@
 package com.roncalho.financial_portfolio.dto.out;
 
-import com.roncalho.financial_portfolio.enums.PeriodoMeta;
-
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record MetaResponseDTO(
@@ -11,7 +10,8 @@ public record MetaResponseDTO(
         String categoriaNome,
         BigDecimal valorLimite,
         BigDecimal valorAtual,
-        PeriodoMeta periodo,
+        LocalDate dataInicio,
+        LocalDate dataFim,
         BigDecimal percentual,
         LocalDateTime criadoEm
 ) {

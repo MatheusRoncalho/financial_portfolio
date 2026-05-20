@@ -5,7 +5,6 @@ import com.roncalho.financial_portfolio.dto.out.MetaResponseDTO;
 import com.roncalho.financial_portfolio.exceptions.RecursoNaoEncontradoException;
 import com.roncalho.financial_portfolio.model.Categoria;
 import com.roncalho.financial_portfolio.model.Meta;
-import com.roncalho.financial_portfolio.enums.PeriodoMeta;
 import com.roncalho.financial_portfolio.model.Usuario;
 import com.roncalho.financial_portfolio.repository.CategoriaRepository;
 import com.roncalho.financial_portfolio.repository.MetaRepository;
@@ -43,7 +42,8 @@ public class MetaService {
                 .categoria(categoria)
                 .usuario(usuario)
                 .valorLimite(dto.valorLimite())
-                .periodo(PeriodoMeta.valueOf(dto.tipoPeriodo().toUpperCase()))
+                .dataInicio(dto.dataInicio())
+                .dataFim(dto.dataFim())
                 .build();
 
         Meta metaSalva = metaRepository.save(meta);
@@ -72,7 +72,8 @@ public class MetaService {
 
         meta.setCategoria(categoria);
         meta.setValorLimite(dto.valorLimite());
-        meta.setPeriodo(PeriodoMeta.valueOf(dto.tipoPeriodo().toUpperCase()));
+        meta.setDataInicio(dto.dataInicio());
+        meta.setDataFim(dto.dataFim());
 
         Meta metaAtualizada = metaRepository.save(meta);
         return converterParaDTO(metaAtualizada, BigDecimal.ZERO);
@@ -89,8 +90,10 @@ public class MetaService {
         Meta meta = metaRepository.findByIdAndUsuarioId(id, usuarioId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Meta não encontrada"));
 
+        BigDecimal totalGasto = metaRepository.calcularTotalGastoNoPeriodo(meta.getCategoria().getId(),
+
         // Implementar lógica de cálculo do valor atual baseado nas transações
-        BigDecimal valorAtual = BigDecimal.ZERO; // TODO: calcular a partir do repository "query que pega todos os valores das transações com a categoriaID que já ocorrerão dentro do periodo da meta (inicio / fim), somar e retornar"
+        BigDecimal valorAtual = totalGasto; // TODO: calcular a partir do repository "query que pega todos os valores das transações com a categoriaID que já ocorrerão dentro do periodo da meta (inicio / fim), somar e retornar"
         BigDecimal percentual = calcularPercentual(valorAtual, meta.getValorLimite());
 
         return converterParaDTO(meta, percentual);
@@ -121,7 +124,8 @@ public class MetaService {
                 meta.getCategoria().getNome(),
                 meta.getValorLimite(),
                 BigDecimal.ZERO, // valorAtual - será calculado //TODO: calcular Valor
-                meta.getPeriodo(),
+                meta.getDataInicio(),
+                meta.getDataFim(),
                 percentual, //TODO: calcular percentual
                 meta.getCriadoEm()
         );

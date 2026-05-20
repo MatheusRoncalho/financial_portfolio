@@ -4,9 +4,7 @@ import com.roncalho.financial_portfolio.dto.in.TransacaoRecorrenteRequestDTO;
 import com.roncalho.financial_portfolio.dto.out.TransacaoRecorrenteResponseDTO;
 import com.roncalho.financial_portfolio.exceptions.RecursoNaoEncontradoException;
 import com.roncalho.financial_portfolio.model.Categoria;
-import com.roncalho.financial_portfolio.enums.PeriodoRecorrencia;
 import com.roncalho.financial_portfolio.enums.StatusRecorrencia;
-import com.roncalho.financial_portfolio.enums.TipoTransacao;
 import com.roncalho.financial_portfolio.model.TransacaoRecorrente;
 import com.roncalho.financial_portfolio.model.Usuario;
 import com.roncalho.financial_portfolio.repository.CategoriaRepository;
@@ -15,7 +13,7 @@ import com.roncalho.financial_portfolio.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -140,12 +138,12 @@ public class TransacaoRecorrenteService {
     }
 
     //TODO: Verificar lógica da próxima transação
-    private LocalDateTime calcularProximaTransacao(TransacaoRecorrente transacaoRecorrente) {
+    private LocalDate calcularProximaTransacao(TransacaoRecorrente transacaoRecorrente) {
         if (transacaoRecorrente.getStatus() != StatusRecorrencia.ATIVO) {
             return null;
         }
 
-        LocalDateTime inicio = transacaoRecorrente.getDataInicial();
+        LocalDate inicio = transacaoRecorrente.getDataInicial();
         switch (transacaoRecorrente.getPeriodo()) {
             case DIARIA:
                 return inicio.plusDays(1);

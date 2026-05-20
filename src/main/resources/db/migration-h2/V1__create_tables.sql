@@ -33,7 +33,8 @@ CREATE TABLE metas (
                        usuario_id BIGINT NOT NULL REFERENCES usuarios(id),
                        categoria_id BIGINT NOT NULL REFERENCES categorias(id),
                        valor_limite DECIMAL(10,2) NOT NULL CHECK (valor_limite > 0),
-                       periodo VARCHAR(20) NOT NULL CHECK (periodo IN ('MENSAL', 'ANUAL')),
+                       data_inicio TIMESTAMP NOT NULL,
+                       data_fim TIMESTAMP NOT NULL,
                        criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

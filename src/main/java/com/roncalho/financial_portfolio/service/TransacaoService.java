@@ -14,8 +14,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -96,17 +94,20 @@ public class TransacaoService {
         List<Transacao> transacoes;
 
         if (inicio != null && fim != null && categoriaId != null && tipo != null) {
-            LocalDateTime inicioDatetime = inicio.atStartOfDay();
-            LocalDateTime fimDatetime = fim.atTime(LocalTime.MAX);
             TipoTransacao tipoEnum = TipoTransacao.valueOf(tipo.toUpperCase());
-            transacoes = transacaoRepository.findByUsuarioIdAndDataTransacaoBetween(usuarioId, inicioDatetime, fimDatetime)
-                    .stream()
-                    .filter(t -> t.getCategoria().getId().equals(categoriaId) && t.getTipo().equals(tipoEnum))
+            transacoes = transacaoRepository.findByUsuarioId(usuarioId).stream()
+                    .filter(t -> t.getDataTransacao() != null
+                            && !t.getDataTransacao().isBefore(inicio)
+                            && !t.getDataTransacao().isAfter(fim)
+                            && t.getCategoria().getId().equals(categoriaId)
+                            && t.getTipo().equals(tipoEnum))
                     .collect(Collectors.toList());
         } else if (inicio != null && fim != null) {
-            LocalDateTime inicioDatetime = inicio.atStartOfDay();
-            LocalDateTime fimDatetime = fim.atTime(LocalTime.MAX);
-            transacoes = transacaoRepository.findByUsuarioIdAndDataTransacaoBetween(usuarioId, inicioDatetime, fimDatetime);
+            transacoes = transacaoRepository.findByUsuarioId(usuarioId).stream()
+                    .filter(t -> t.getDataTransacao() != null
+                            && !t.getDataTransacao().isBefore(inicio)
+                            && !t.getDataTransacao().isAfter(fim))
+                    .collect(Collectors.toList());
         } else if (categoriaId != null) {
             transacoes = transacaoRepository.findByUsuarioIdAndCategoriaId(usuarioId, categoriaId);
         } else if (tipo != null) {

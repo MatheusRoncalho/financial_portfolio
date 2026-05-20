@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public record TransacaoRecorrenteRequestDTO(
         @NotBlank(message = "A descrição é obrigatória")
@@ -24,7 +24,7 @@ public record TransacaoRecorrenteRequestDTO(
         @NotBlank(message = "Tipo do período é obrigatório")
         PeriodoRecorrencia tipoPeriodo,
         @NotNull(message = "Data inicial é obrigatória")
-        LocalDateTime dataInicial,
-        LocalDateTime dataFinal
+        LocalDate dataInicial,
+        LocalDate dataFinal
 ) {
 }
