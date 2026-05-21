@@ -61,29 +61,6 @@ public class MetaController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{id}/progresso")
-    @Operation(summary = "Obter Progresso da Meta", description = "Obtém o progresso de uma meta específica (percentual de consumo)")
-    @ApiResponse(responseCode = "200", description = "Progresso obtido com sucesso")
-    @ApiResponse(responseCode = "401", description = "Não autenticado")
-    @ApiResponse(responseCode = "404", description = "Meta não encontrada")
-    @ApiResponse(responseCode = "500", description = "Erro de servidor")
-    public ResponseEntity<MetaResponseDTO> obterMetaProgresso(@PathVariable Long id) {
-        Long usuarioId = obterUsuarioIdDoToken();
-        MetaResponseDTO response = metaService.obterMetaProgresso(id, usuarioId);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/progresso")
-    @Operation(summary = "Obter Progresso de Todas as Metas", description = "Obtém o progresso de todas as metas do usuário")
-    @ApiResponse(responseCode = "200", description = "Progressos obtidos com sucesso")
-    @ApiResponse(responseCode = "401", description = "Não autenticado")
-    @ApiResponse(responseCode = "500", description = "Erro de servidor")
-    public ResponseEntity<List<MetaResponseDTO>> obterMetaProgressoTodos() {
-        Long usuarioId = obterUsuarioIdDoToken();
-        List<MetaResponseDTO> response = metaService.obterMetaProgressoTodos(usuarioId);
-        return ResponseEntity.ok(response);
-    }
-
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar Meta", description = "Atualiza uma meta existente")
     @ApiResponse(responseCode = "200", description = "Meta atualizada com sucesso")
