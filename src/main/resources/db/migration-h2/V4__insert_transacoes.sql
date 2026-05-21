@@ -1,4 +1,4 @@
-INSERT INTO usuarios (username, email, senha) VALUES ('Matheus', 'matheus@email.com', 'senha123');
+INSERT INTO usuarios (username, email, senha) VALUES ('Matheus', 'matheusroncalho@gmail.com', '$2a$12$yhcahElx53UH2Ugis1Q51uGSVg9wkpSOKcE95zZZ8.VBxz.lg.N2K');
 
 INSERT INTO transacoes (
     categoria_id,

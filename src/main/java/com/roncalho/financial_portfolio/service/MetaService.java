@@ -47,19 +47,22 @@ public class MetaService {
                 .build();
 
         Meta metaSalva = metaRepository.save(meta);
-        return converterParaDTO(metaSalva, BigDecimal.ZERO);
+
+        BigDecimal valorAtual = obterValorAtualDaMeta(metaSalva, usuarioId);
+        BigDecimal porcentagem = calcularPercentual(valorAtual, metaSalva.getValorLimite());
+
+        return converterParaDTO(metaSalva, valorAtual, porcentagem);
     }
 
     public List<MetaResponseDTO> listarMetas(Long usuarioId) {
-        return metaRepository.findByUsuarioId(usuarioId).stream()
-                .map(meta -> converterParaDTO(meta, BigDecimal.ZERO))
-                .collect(Collectors.toList());
+        return metaRepository.listarMetasComProgresso(usuarioId);
     }
 
     public MetaResponseDTO obterMetaPorId(Long id, Long usuarioId) {
-        Meta meta = metaRepository.findByIdAndUsuarioId(id, usuarioId)
+        return metaRepository.listarMetasComProgresso(usuarioId).stream()
+                .filter(m -> m.id().equals(id))
+                .findFirst()
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Meta não encontrada"));
-        return converterParaDTO(meta, BigDecimal.ZERO);
     }
 
     @Transactional
@@ -76,7 +79,11 @@ public class MetaService {
         meta.setDataFim(dto.dataFim());
 
         Meta metaAtualizada = metaRepository.save(meta);
-        return converterParaDTO(metaAtualizada, BigDecimal.ZERO);
+
+        BigDecimal valorAtual = obterValorAtualDaMeta(meta, usuarioId);
+        BigDecimal percentual = calcularPercentual(valorAtual, meta.getValorLimite());
+
+        return converterParaDTO(metaAtualizada, valorAtual, percentual);
     }
 
     @Transactional
@@ -86,27 +93,13 @@ public class MetaService {
         metaRepository.deleteById(meta.getId());
     }
 
-    public MetaResponseDTO obterMetaProgresso(Long id, Long usuarioId) {
-        Meta meta = metaRepository.findByIdAndUsuarioId(id, usuarioId)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Meta não encontrada"));
-
-        //BigDecimal totalGasto = metaRepository.calcularTotalGastoNoPeriodo(meta.getCategoria().getId(),
-
-        // Implementar lógica de cálculo do valor atual baseado nas transações
-        //BigDecimal valorAtual = BigDecimal.ZERO; // TODO: calcular a partir do repository "query que pega todos os valores das transações com a categoriaID que já ocorrerão dentro do periodo da meta (inicio / fim), somar e retornar"
-        //calcularPercentual(valorAtual, meta.getValorLimite());
-
-        return converterParaDTO(meta, BigDecimal.ZERO);
-    }
-
-    public List<MetaResponseDTO> obterMetaProgressoTodos(Long usuarioId) {
-        return metaRepository.findByUsuarioId(usuarioId).stream()
-                .map(meta -> {
-                    BigDecimal valorAtual = BigDecimal.ZERO; // TODO: calcular a partir do repository
-                    BigDecimal percentual = calcularPercentual(valorAtual, meta.getValorLimite());
-                    return converterParaDTO(meta, percentual);
-                })
-                .collect(Collectors.toList());
+    private BigDecimal obterValorAtualDaMeta(Meta meta, Long usuarioId) {
+        return metaRepository.calcularTotalGastoNoPeriodo(
+                meta.getCategoria().getId(),
+                usuarioId,
+                meta.getDataInicio(),
+                meta.getDataFim()
+        );
     }
 
     private BigDecimal calcularPercentual(BigDecimal valorAtual, BigDecimal valorLimite) {
@@ -117,16 +110,16 @@ public class MetaService {
                 .multiply(new BigDecimal(100));
     }
 
-    private MetaResponseDTO converterParaDTO(Meta meta, BigDecimal percentual) {
+    private MetaResponseDTO converterParaDTO(Meta meta,BigDecimal valorAtual, BigDecimal percentual) {
         return new MetaResponseDTO(
                 meta.getId(),
                 meta.getCategoria().getId(),
                 meta.getCategoria().getNome(),
                 meta.getValorLimite(),
-                BigDecimal.ZERO, // valorAtual - será calculado //TODO: calcular Valor
+                valorAtual,
                 meta.getDataInicio(),
                 meta.getDataFim(),
-                percentual, //TODO: calcular percentual
+                percentual,
                 meta.getCriadoEm()
         );
     }
