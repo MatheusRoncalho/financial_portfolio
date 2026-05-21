@@ -55,23 +55,14 @@ public class MetaService {
     }
 
     public List<MetaResponseDTO> listarMetas(Long usuarioId) {
-        return metaRepository.findByUsuarioId(usuarioId).stream()
-                .map(meta -> {
-                    BigDecimal valorAtual = obterValorAtualDaMeta(meta, usuarioId);
-                    BigDecimal percentual = calcularPercentual(valorAtual, meta.getValorLimite());
-                    return converterParaDTO(meta, valorAtual, percentual);
-                })
-                .collect(Collectors.toList());
+        return metaRepository.listarMetasComProgresso(usuarioId);
     }
 
     public MetaResponseDTO obterMetaPorId(Long id, Long usuarioId) {
-        Meta meta = metaRepository.findByIdAndUsuarioId(id, usuarioId)
+        return metaRepository.listarMetasComProgresso(usuarioId).stream()
+                .filter(m -> m.id().equals(id))
+                .findFirst()
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Meta não encontrada"));
-
-        BigDecimal valorAtual = obterValorAtualDaMeta(meta, usuarioId);
-        BigDecimal percentual = calcularPercentual(valorAtual, meta.getValorLimite());
-
-        return converterParaDTO(meta, valorAtual, percentual);
     }
 
     @Transactional

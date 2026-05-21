@@ -1,5 +1,6 @@
 package com.roncalho.financial_portfolio.repository;
 
+import com.roncalho.financial_portfolio.dto.out.MetaResponseDTO;
 import com.roncalho.financial_portfolio.model.Meta;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -32,5 +33,25 @@ public interface MetaRepository extends JpaRepository<Meta, Long> {
             @Param("usuarioId") Long usuarioId,
             @Param("dataInicio") LocalDate dataInicio,
             @Param("dataFim") LocalDate dataFim);
+
+    @Query("SELECT " +
+            "m.id, " +
+            "m.categoria.id, " +
+            "m.categoria.nome, " +
+            "m.valorLimite, " +
+            "COALESCE(SUM(t.valor), 0), " +
+            "m.dataInicio, " +
+            "m.dataFim, " +
+            "ROUND((COALESCE(SUM(t.valor), 0) / m.valorLimite) * 100, 2), " +
+            "m.criadoEm " +
+            "FROM Meta m " +
+            "LEFT JOIN Transacao t ON t.categoria.id = m.categoria.id " +
+            "  AND t.usuario.id = m.usuario.id " +
+            "  AND t.tipo = 'SAIDA' " +
+            "  AND t.dataTransacao BETWEEN m.dataInicio AND m.dataFim " +
+            "WHERE m.usuario.id = :usuarioId " +
+            "GROUP BY m.id, m.categoria.id, m.categoria.nome, m.valorLimite, m.dataInicio, m.dataFim, m.criadoEm")
+    List<MetaResponseDTO> listarMetasComProgresso(@Param("usuarioId") Long usuarioId);
+
 }
 
