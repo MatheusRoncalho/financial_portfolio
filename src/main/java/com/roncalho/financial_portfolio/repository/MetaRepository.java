@@ -23,8 +23,6 @@ public interface MetaRepository extends JpaRepository<Meta, Long> {
 
     List<Meta> findByUsuarioId(Long usuarioId);
 
-    Optional<Meta> findByIdAndUsuarioId(Long usuarioId, Pageable pageable);
-
     Optional<Meta> findByCategoriaIdAndUsuarioId(Long categoriaId, Long usuarioId);
 
     @Query(value = """
