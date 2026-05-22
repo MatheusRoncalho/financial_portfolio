@@ -48,9 +48,6 @@ public class TransacaoRecorrente {
     @Column(name = "data_final")
     private LocalDate dataFinal;
 
-    @Column(name = "proxima_transacao", nullable = false)
-    private LocalDate proximaTransacao;
-
     @CreationTimestamp
     @Column(name = "criado_em")
     private LocalDateTime criadoEm;

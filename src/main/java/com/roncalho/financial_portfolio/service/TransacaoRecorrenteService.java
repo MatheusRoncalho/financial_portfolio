@@ -15,8 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-
 @Service
 public class TransacaoRecorrenteService {
 
@@ -50,7 +48,6 @@ public class TransacaoRecorrenteService {
                 .dataFinal(dto.dataFinal() != null ? dto.dataFinal() : null)
                 .build();
 
-        transacaoRecorrente.setProximaTransacao(calcularProximaTransacao(transacaoRecorrente));
 
         TransacaoRecorrente transacaoRecorrenteSalva = transacaoRecorrenteRepository.save(transacaoRecorrente);
         return converterParaDTO(transacaoRecorrenteSalva);
@@ -125,29 +122,8 @@ public class TransacaoRecorrenteService {
                 transacao.getStatus(),
                 transacao.getDataInicial(),
                 transacao.getDataFinal(),
-                transacao.getProximaTransacao(),
                 transacao.getCriadoEm()
         );
-    }
-
-    private LocalDate calcularProximaTransacao(TransacaoRecorrente transacaoRecorrente) {
-        if (transacaoRecorrente.getStatus() != StatusRecorrencia.ATIVO) {
-            return null;
-        }
-
-        LocalDate inicio = transacaoRecorrente.getDataInicial();
-        switch (transacaoRecorrente.getPeriodo()) {
-            case DIARIA:
-                return inicio.plusDays(1);
-            case SEMANAL:
-                return inicio.plusWeeks(1);
-            case MENSAL:
-                return inicio.plusMonths(1);
-            case ANUAL:
-                return inicio.plusYears(1);
-            default:
-                return null;
-        }
     }
 }
 
