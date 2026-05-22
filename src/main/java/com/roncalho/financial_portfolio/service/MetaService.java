@@ -38,6 +38,10 @@ public class MetaService {
         Categoria categoria = categoriaRepository.findByIdAndUsuarioId(dto.categoriaId(), usuarioId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria não encontrada"));
 
+        if (metaRepository.buscarMetaConflitante(dto.categoriaId(), usuarioId, dto.dataInicio(), dto.dataFim()).isPresent()) {
+            throw new RecursoNaoEncontradoException("Já existe uma meta nesta data para esta categoria");
+        }
+
         Meta meta = Meta.builder()
                 .categoria(categoria)
                 .usuario(usuario)

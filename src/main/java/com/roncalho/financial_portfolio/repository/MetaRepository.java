@@ -23,21 +23,33 @@ public interface MetaRepository extends JpaRepository<Meta, Long> {
 
     List<Meta> findByUsuarioId(Long usuarioId);
 
-    Meta findByIdAndUsuarioId(Long usuarioId, Pageable pageable);
+    Optional<Meta> findByIdAndUsuarioId(Long usuarioId, Pageable pageable);
 
-    List<Meta> findByCategoriaIdAndUsuarioId(Long categoriaId, Long usuarioId);
+    Optional<Meta> findByCategoriaIdAndUsuarioId(Long categoriaId, Long usuarioId);
+
+    @Query(value = """
+    SELECT COALESCE(SUM(t.valor), 0)
+    FROM transacao t
+    WHERE t.usuario_id = :usuarioId
+      AND t.categoria_id = :categoriaId
+      AND t.tipo = 'SAIDA'
+      AND t.data_transacao BETWEEN :dataInicio AND :dataFim
+    """, nativeQuery = true)
+    BigDecimal calcularTotalGastoNoPeriodo(
+            @Param("categoriaId") Long categoriaId,
+            @Param("usuarioId") Long usuarioId,
+            @Param("dataInicio") LocalDate dataInicio,
+            @Param("dataFim") LocalDate dataFim);
 
     @Query("""
-    SELECT 
-        t.categoria.id AS categoriaId,
-        COALESCE(SUM(t.valor), 0) AS total
-    FROM Transacao t
-    WHERE t.usuario.id = :usuarioId
-      AND t.tipo = 'SAIDA'
-      AND t.dataTransacao BETWEEN :dataInicio AND :dataFim
-    GROUP BY t.categoria.id
-        """)
-    BigDecimal calcularTotalGastoNoPeriodo(
+    SELECT m
+    FROM Meta m
+    WHERE m.categoria.id = :categoriaId
+      AND m.usuario.id = :usuarioId
+      AND :dataInicio <= m.dataFim
+      AND :dataFim >= m.dataInicio
+    """)
+    Optional<Meta> buscarMetaConflitante(
             @Param("categoriaId") Long categoriaId,
             @Param("usuarioId") Long usuarioId,
             @Param("dataInicio") LocalDate dataInicio,
