@@ -19,7 +19,6 @@ public record TransacaoRecorrenteResponseDTO(
         StatusRecorrencia status,
         LocalDate dataInicial,
         LocalDate dataFinal,
-        LocalDate proximaExecucao,
         LocalDateTime criadoEm
 ) {
 }

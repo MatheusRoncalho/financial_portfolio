@@ -10,11 +10,11 @@ import com.roncalho.financial_portfolio.repository.CategoriaRepository;
 import com.roncalho.financial_portfolio.repository.MetaRepository;
 import com.roncalho.financial_portfolio.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class MetaService {
@@ -38,6 +38,10 @@ public class MetaService {
         Categoria categoria = categoriaRepository.findByIdAndUsuarioId(dto.categoriaId(), usuarioId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria não encontrada"));
 
+        if (metaRepository.buscarMetaConflitante(dto.categoriaId(), usuarioId, dto.dataInicio(), dto.dataFim()).isPresent()) {
+            throw new RecursoNaoEncontradoException("Já existe uma meta nesta data para esta categoria");
+        }
+
         Meta meta = Meta.builder()
                 .categoria(categoria)
                 .usuario(usuario)
@@ -54,14 +58,17 @@ public class MetaService {
         return converterParaDTO(metaSalva, valorAtual, porcentagem);
     }
 
-    public List<MetaResponseDTO> listarMetas(Long usuarioId) {
-        return metaRepository.listarMetasComProgresso(usuarioId);
+    public Page<MetaResponseDTO> listarMetas(Long usuarioId, Pageable pageable) {
+        return metaRepository.listarMetasComProgressoPaginado(usuarioId, pageable);
     }
 
     public MetaResponseDTO obterMetaPorId(Long id, Long usuarioId) {
-        return metaRepository.listarMetasComProgresso(usuarioId).stream()
-                .filter(m -> m.id().equals(id))
-                .findFirst()
+        return metaRepository.findByIdAndUsuarioId(id, usuarioId)
+                .map(meta -> {
+                    BigDecimal valorAtual = obterValorAtualDaMeta(meta, usuarioId);
+                    BigDecimal percentual = calcularPercentual(valorAtual, meta.getValorLimite());
+                    return converterParaDTO(meta, valorAtual, percentual);
+                })
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Meta não encontrada"));
     }
 

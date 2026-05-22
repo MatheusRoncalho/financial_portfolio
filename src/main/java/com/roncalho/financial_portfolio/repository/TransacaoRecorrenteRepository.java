@@ -2,6 +2,8 @@ package com.roncalho.financial_portfolio.repository;
 
 import com.roncalho.financial_portfolio.model.TransacaoRecorrente;
 import com.roncalho.financial_portfolio.enums.StatusRecorrencia;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -21,8 +23,14 @@ public interface TransacaoRecorrenteRepository extends JpaRepository<TransacaoRe
 
     List<TransacaoRecorrente> findByUsuarioId(Long usuarioId);
 
+    Page<TransacaoRecorrente> findByUsuarioId(Long usuarioId, Pageable pageable);
+
     List<TransacaoRecorrente> findByUsuarioIdAndStatus(Long usuarioId, StatusRecorrencia status);
 
+    Page<TransacaoRecorrente> findByUsuarioIdAndStatus(Long usuarioId, StatusRecorrencia status, Pageable pageable);
+
     List<TransacaoRecorrente> findByUsuarioIdAndCategoriaId(Long usuarioId, Long categoriaId);
+
+    Page<TransacaoRecorrente> findByUsuarioIdAndCategoriaId(Long usuarioId, Long categoriaId, Pageable pageable);
 }
 

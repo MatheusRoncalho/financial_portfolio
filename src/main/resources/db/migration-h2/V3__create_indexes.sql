@@ -18,9 +18,6 @@ CREATE INDEX idx_metas_data_fim ON metas(data_fim);
 CREATE INDEX idx_metas_usuario_data_fim ON metas(usuario_id, data_fim);
 
 -- Transações Recorrentes
-CREATE INDEX idx_recorrentes_proxima_transacao ON transacoes_recorrentes(proxima_transacao);
-CREATE INDEX idx_recorrentes_status_proxima ON transacoes_recorrentes(status, proxima_transacao);
-CREATE INDEX idx_recorrentes_usuario_proxima ON transacoes_recorrentes(usuario_id, proxima_transacao);
 CREATE INDEX idx_recorrentes_usuario ON transacoes_recorrentes(usuario_id);
 CREATE INDEX idx_recorrentes_categoria ON transacoes_recorrentes(categoria_id);
 CREATE INDEX idx_recorrentes_usuario_categoria ON transacoes_recorrentes(usuario_id, categoria_id);

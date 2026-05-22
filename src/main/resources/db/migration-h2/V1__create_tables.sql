@@ -49,6 +49,5 @@ CREATE TABLE transacoes_recorrentes (
                             status VARCHAR(10) NOT NULL CHECK (status IN ('ATIVO', 'CANCELADO')),
                             data_inicial DATE NOT NULL,
                             data_final DATE,
-                            proxima_transacao DATE NOT NULL,
                             criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

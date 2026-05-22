@@ -10,10 +10,9 @@ import com.roncalho.financial_portfolio.model.Usuario;
 import com.roncalho.financial_portfolio.repository.CategoriaRepository;
 import com.roncalho.financial_portfolio.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class CategoriaService {
@@ -47,11 +46,8 @@ public class CategoriaService {
         return converterParaDTO(categoriaSalva);
     }
 
-    public List<CategoriaResponseDTO> listarCategorias(Long usuarioId) {
-
-        return categoriaRepository.findByUsuarioId(usuarioId).stream()
-                .map(this::converterParaDTO)
-                .collect(Collectors.toList());
+    public Page<CategoriaResponseDTO> listarCategorias(Long usuarioId, Pageable pageable) {
+        return categoriaRepository.findByUsuarioIdOrSistemaIsTrue(usuarioId, pageable).map(this::converterParaDTO);
     }
 
     public CategoriaResponseDTO obterCategoriaPorId(Long id, Long usuarioId) {
