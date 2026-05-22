@@ -7,12 +7,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Objects;
 
 @RestController
@@ -38,26 +39,25 @@ public class TransacaoRecorrenteController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    //TODO: Melhorar esses filtros
     @GetMapping
     @Operation(summary = "Listar Transações Recorrentes", description = "Lista transações recorrentes com filtros opcionais por status e categoria")
     @ApiResponse(responseCode = "200", description = "Transações recorrentes listadas com sucesso")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @ApiResponse(responseCode = "500", description = "Erro de servidor")
-    public ResponseEntity<List<TransacaoRecorrenteResponseDTO>> listarTransacoesRecorrentes(@RequestParam(required = false) String status, @RequestParam(required = false) Long categoriaId) {
+    public Page<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentes(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Long categoriaId,
+            Pageable pageable) {
 
         Long usuarioId = obterUsuarioIdDoToken();
-        List<TransacaoRecorrenteResponseDTO> response;
 
         if (status != null) {
-            response = transacaoRecorrenteService.listarTransacoesRecorrentesPorStatus(status, usuarioId);
+            return transacaoRecorrenteService.listarTransacoesRecorrentesPorStatus(status, usuarioId, pageable);
         } else if (categoriaId != null) {
-            response = transacaoRecorrenteService.listarTransacoesRecorrentesPorCategoria(categoriaId, usuarioId);
+            return transacaoRecorrenteService.listarTransacoesRecorrentesPorCategoria(categoriaId, usuarioId, pageable);
         } else {
-            response = transacaoRecorrenteService.listarTransacoesRecorrentes(usuarioId);
+            return transacaoRecorrenteService.listarTransacoesRecorrentes(usuarioId, pageable);
         }
-
-        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")

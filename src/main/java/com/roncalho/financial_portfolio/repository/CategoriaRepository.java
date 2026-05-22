@@ -1,6 +1,8 @@
 package com.roncalho.financial_portfolio.repository;
 
 import com.roncalho.financial_portfolio.model.Categoria;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -20,4 +22,6 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
     List<Categoria> findByUsuarioId(Long usuarioId);
 
     Optional<Categoria> findByNomeAndUsuarioId(String nome, Long usuarioId);
+
+    Page<Categoria> findByUsuarioIdOrSistemaIsTrue(Long usuarioId, Pageable pageable);
 }

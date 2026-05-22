@@ -7,12 +7,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Objects;
 
 @RestController
@@ -43,10 +44,9 @@ public class CategoriaController {
     @ApiResponse(responseCode = "200", description = "Categorias listadas com sucesso")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @ApiResponse(responseCode = "500", description = "Erro de servidor")
-    public ResponseEntity<List<CategoriaResponseDTO>> listarCategorias() {
+    public Page<CategoriaResponseDTO> listarCategorias(Pageable pageable) {
         Long usuarioId = obterUsuarioIdDoToken();
-        List<CategoriaResponseDTO> response = categoriaService.listarCategorias(usuarioId);
-        return ResponseEntity.ok(response);
+        return categoriaService.listarCategorias(usuarioId, pageable);
     }
 
     @GetMapping("/{id}")

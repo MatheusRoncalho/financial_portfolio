@@ -11,11 +11,11 @@ import com.roncalho.financial_portfolio.repository.CategoriaRepository;
 import com.roncalho.financial_portfolio.repository.TransacaoRecorrenteRepository;
 import com.roncalho.financial_portfolio.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class TransacaoRecorrenteService {
@@ -56,10 +56,8 @@ public class TransacaoRecorrenteService {
         return converterParaDTO(transacaoRecorrenteSalva);
     }
 
-    public List<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentes(Long usuarioId) {
-        return transacaoRecorrenteRepository.findByUsuarioId(usuarioId).stream()
-                .map(this::converterParaDTO)
-                .collect(Collectors.toList());
+    public Page<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentes(Long usuarioId, Pageable pageable) {
+        return transacaoRecorrenteRepository.findByUsuarioId(usuarioId, pageable).map(this::converterParaDTO);
     }
 
     public TransacaoRecorrenteResponseDTO obterTransacaoRecorrentePorId(Long id, Long usuarioId) {
@@ -94,7 +92,6 @@ public class TransacaoRecorrenteService {
         transacaoRecorrenteRepository.deleteById(transacao.getId());
     }
 
-    //TODO: verificar lógica
     @Transactional
     public TransacaoRecorrenteResponseDTO alterarStatus(Long id, String novoStatus, Long usuarioId) {
         TransacaoRecorrente transacao = transacaoRecorrenteRepository.findByIdAndUsuarioId(id, usuarioId)
@@ -107,17 +104,13 @@ public class TransacaoRecorrenteService {
         return converterParaDTO(transacaoRecorrenteAtualizada);
     }
 
-    public List<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentesPorStatus(String status, Long usuarioId) {
+    public Page<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentesPorStatus(String status, Long usuarioId, Pageable pageable) {
         StatusRecorrencia statusEnum = StatusRecorrencia.valueOf(status.toUpperCase());
-        return transacaoRecorrenteRepository.findByUsuarioIdAndStatus(usuarioId, statusEnum).stream()
-                .map(this::converterParaDTO)
-                .collect(Collectors.toList());
+        return transacaoRecorrenteRepository.findByUsuarioIdAndStatus(usuarioId, statusEnum, pageable).map(this::converterParaDTO);
     }
 
-    public List<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentesPorCategoria(Long categoriaId, Long usuarioId) {
-        return transacaoRecorrenteRepository.findByUsuarioIdAndCategoriaId(usuarioId, categoriaId).stream()
-                .map(this::converterParaDTO)
-                .collect(Collectors.toList());
+    public Page<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentesPorCategoria(Long categoriaId, Long usuarioId, Pageable pageable) {
+        return transacaoRecorrenteRepository.findByUsuarioIdAndCategoriaId(usuarioId, categoriaId, pageable).map(this::converterParaDTO);
     }
 
     private TransacaoRecorrenteResponseDTO converterParaDTO(TransacaoRecorrente transacao) {
@@ -137,7 +130,6 @@ public class TransacaoRecorrenteService {
         );
     }
 
-    //TODO: Verificar lógica da próxima transação
     private LocalDate calcularProximaTransacao(TransacaoRecorrente transacaoRecorrente) {
         if (transacaoRecorrente.getStatus() != StatusRecorrencia.ATIVO) {
             return null;

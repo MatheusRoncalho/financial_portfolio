@@ -11,11 +11,11 @@ import com.roncalho.financial_portfolio.repository.CategoriaRepository;
 import com.roncalho.financial_portfolio.repository.TransacaoRepository;
 import com.roncalho.financial_portfolio.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class TransacaoService {
@@ -88,38 +88,24 @@ public class TransacaoService {
         transacaoRepository.deleteById(id);
     }
 
-    // TODO: Listar com paginação e filtros (Specification Pattern)
-    public List<TransacaoResponseDTO> listarTransacoes(Long usuarioId, LocalDate inicio, LocalDate fim, Long categoriaId, String tipo) {
-
-        List<Transacao> transacoes;
+    public Page<TransacaoResponseDTO> listarTransacoes(Long usuarioId, LocalDate inicio, LocalDate fim, Long categoriaId, String tipo, Pageable pageable) {
+        Page<Transacao> transacoes;
 
         if (inicio != null && fim != null && categoriaId != null && tipo != null) {
             TipoTransacao tipoEnum = TipoTransacao.valueOf(tipo.toUpperCase());
-            transacoes = transacaoRepository.findByUsuarioId(usuarioId).stream()
-                    .filter(t -> t.getDataTransacao() != null
-                            && !t.getDataTransacao().isBefore(inicio)
-                            && !t.getDataTransacao().isAfter(fim)
-                            && t.getCategoria().getId().equals(categoriaId)
-                            && t.getTipo().equals(tipoEnum))
-                    .collect(Collectors.toList());
-        } else if (inicio != null && fim != null) {
-            transacoes = transacaoRepository.findByUsuarioId(usuarioId).stream()
-                    .filter(t -> t.getDataTransacao() != null
-                            && !t.getDataTransacao().isBefore(inicio)
-                            && !t.getDataTransacao().isAfter(fim))
-                    .collect(Collectors.toList());
+            transacoes = transacaoRepository.findByUsuarioIdAndCategoriaIdAndTipo(usuarioId, categoriaId, tipoEnum, pageable);
+        } else if (inicio != null && fim != null && categoriaId != null) {
+            transacoes = transacaoRepository.findByUsuarioIdAndCategoriaId(usuarioId, categoriaId, pageable);
         } else if (categoriaId != null) {
-            transacoes = transacaoRepository.findByUsuarioIdAndCategoriaId(usuarioId, categoriaId);
+            transacoes = transacaoRepository.findByUsuarioIdAndCategoriaId(usuarioId, categoriaId, pageable);
         } else if (tipo != null) {
             TipoTransacao tipoEnum = TipoTransacao.valueOf(tipo.toUpperCase());
-            transacoes = transacaoRepository.findByUsuarioIdAndTipo(usuarioId, tipoEnum);
+            transacoes = transacaoRepository.findByUsuarioIdAndTipo(usuarioId, tipoEnum, pageable);
         } else {
-            transacoes = transacaoRepository.findByUsuarioId(usuarioId);
+            transacoes = transacaoRepository.findByUsuarioId(usuarioId, pageable);
         }
 
-        return transacoes.stream()
-                .map(this::converterParaDTO)
-                .collect(Collectors.toList());
+        return transacoes.map(this::converterParaDTO);
     }
 
     private TransacaoResponseDTO converterParaDTO(Transacao transacao) {
