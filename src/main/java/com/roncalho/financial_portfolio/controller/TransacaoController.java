@@ -1,5 +1,6 @@
 package com.roncalho.financial_portfolio.controller;
 
+import com.roncalho.financial_portfolio.dto.in.TransacaoFiltroRequestDTO;
 import com.roncalho.financial_portfolio.dto.in.TransacaoRequestDTO;
 import com.roncalho.financial_portfolio.dto.out.TransacaoResponseDTO;
 import com.roncalho.financial_portfolio.service.TransacaoService;
@@ -7,6 +8,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Objects;
 
 @RestController
@@ -82,14 +84,9 @@ public class TransacaoController {
     @ApiResponse(responseCode = "200", description = "Transações listadas com sucesso")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @ApiResponse(responseCode = "500", description = "Erro de servidor")
-    public ResponseEntity<List<TransacaoResponseDTO>> listarTransacoes(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim,
-            @RequestParam(required = false) Long categoria,
-            @RequestParam(required = false) String tipo) {
+    public Page<TransacaoResponseDTO> listarTransacoes(TransacaoFiltroRequestDTO filtro, Pageable pageable) {
         Long usuarioId = obterUsuarioIdDoToken();
-        List<TransacaoResponseDTO> response = transacaoService.listarTransacoes(usuarioId, inicio, fim, categoria, tipo);
-        return ResponseEntity.ok(response);
+        return transacaoService.listarTransacoes(usuarioId, filtro,pageable);
     }
 
     private Long obterUsuarioIdDoToken() {

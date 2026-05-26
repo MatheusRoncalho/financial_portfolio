@@ -1,5 +1,6 @@
 package com.roncalho.financial_portfolio.controller;
 
+import com.roncalho.financial_portfolio.dto.in.CategoriaFiltroRequestDTO;
 import com.roncalho.financial_portfolio.dto.in.CategoriaRequestDTO;
 import com.roncalho.financial_portfolio.dto.out.CategoriaResponseDTO;
 import com.roncalho.financial_portfolio.service.CategoriaService;
@@ -7,12 +8,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Objects;
 
 @RestController
@@ -39,14 +41,13 @@ public class CategoriaController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar Categorias", description = "Lista todas as categorias do usuário autenticado")
+    @Operation(summary = "Listar Categorias", description = "Lista as categorias filtradas do usuário autenticado")
     @ApiResponse(responseCode = "200", description = "Categorias listadas com sucesso")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @ApiResponse(responseCode = "500", description = "Erro de servidor")
-    public ResponseEntity<List<CategoriaResponseDTO>> listarCategorias() {
+    public Page<CategoriaResponseDTO> listarCategorias(CategoriaFiltroRequestDTO filtro, Pageable pageable) {
         Long usuarioId = obterUsuarioIdDoToken();
-        List<CategoriaResponseDTO> response = categoriaService.listarCategorias(usuarioId);
-        return ResponseEntity.ok(response);
+        return categoriaService.listarCategorias(usuarioId, filtro, pageable);
     }
 
     @GetMapping("/{id}")

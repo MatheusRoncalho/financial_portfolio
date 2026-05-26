@@ -10,11 +10,11 @@ import com.roncalho.financial_portfolio.repository.CategoriaRepository;
 import com.roncalho.financial_portfolio.repository.MetaRepository;
 import com.roncalho.financial_portfolio.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class MetaService {
@@ -38,6 +38,10 @@ public class MetaService {
         Categoria categoria = categoriaRepository.findByIdAndUsuarioId(dto.categoriaId(), usuarioId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria não encontrada"));
 
+        if (metaRepository.buscarMetaConflitante(dto.categoriaId(), usuarioId, dto.dataInicio(), dto.dataFim()).isPresent()) {
+            throw new RecursoNaoEncontradoException("Já existe uma meta nesta data para esta categoria");
+        }
+
         Meta meta = Meta.builder()
                 .categoria(categoria)
                 .usuario(usuario)
@@ -47,19 +51,25 @@ public class MetaService {
                 .build();
 
         Meta metaSalva = metaRepository.save(meta);
-        return converterParaDTO(metaSalva, BigDecimal.ZERO);
+
+        BigDecimal valorAtual = obterValorAtualDaMeta(metaSalva, usuarioId);
+        BigDecimal porcentagem = calcularPercentual(valorAtual, metaSalva.getValorLimite());
+
+        return converterParaDTO(metaSalva, valorAtual, porcentagem);
     }
 
-    public List<MetaResponseDTO> listarMetas(Long usuarioId) {
-        return metaRepository.findByUsuarioId(usuarioId).stream()
-                .map(meta -> converterParaDTO(meta, BigDecimal.ZERO))
-                .collect(Collectors.toList());
+    public Page<MetaResponseDTO> listarMetas(Long usuarioId, Pageable pageable) {
+        return metaRepository.listarMetasComProgressoPaginado(usuarioId, pageable);
     }
 
     public MetaResponseDTO obterMetaPorId(Long id, Long usuarioId) {
-        Meta meta = metaRepository.findByIdAndUsuarioId(id, usuarioId)
+        return metaRepository.findByIdAndUsuarioId(id, usuarioId)
+                .map(meta -> {
+                    BigDecimal valorAtual = obterValorAtualDaMeta(meta, usuarioId);
+                    BigDecimal percentual = calcularPercentual(valorAtual, meta.getValorLimite());
+                    return converterParaDTO(meta, valorAtual, percentual);
+                })
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Meta não encontrada"));
-        return converterParaDTO(meta, BigDecimal.ZERO);
     }
 
     @Transactional
@@ -76,7 +86,11 @@ public class MetaService {
         meta.setDataFim(dto.dataFim());
 
         Meta metaAtualizada = metaRepository.save(meta);
-        return converterParaDTO(metaAtualizada, BigDecimal.ZERO);
+
+        BigDecimal valorAtual = obterValorAtualDaMeta(meta, usuarioId);
+        BigDecimal percentual = calcularPercentual(valorAtual, meta.getValorLimite());
+
+        return converterParaDTO(metaAtualizada, valorAtual, percentual);
     }
 
     @Transactional
@@ -86,27 +100,13 @@ public class MetaService {
         metaRepository.deleteById(meta.getId());
     }
 
-    public MetaResponseDTO obterMetaProgresso(Long id, Long usuarioId) {
-        Meta meta = metaRepository.findByIdAndUsuarioId(id, usuarioId)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Meta não encontrada"));
-
-        //BigDecimal totalGasto = metaRepository.calcularTotalGastoNoPeriodo(meta.getCategoria().getId(),
-
-        // Implementar lógica de cálculo do valor atual baseado nas transações
-        //BigDecimal valorAtual = BigDecimal.ZERO; // TODO: calcular a partir do repository "query que pega todos os valores das transações com a categoriaID que já ocorrerão dentro do periodo da meta (inicio / fim), somar e retornar"
-        //calcularPercentual(valorAtual, meta.getValorLimite());
-
-        return converterParaDTO(meta, BigDecimal.ZERO);
-    }
-
-    public List<MetaResponseDTO> obterMetaProgressoTodos(Long usuarioId) {
-        return metaRepository.findByUsuarioId(usuarioId).stream()
-                .map(meta -> {
-                    BigDecimal valorAtual = BigDecimal.ZERO; // TODO: calcular a partir do repository
-                    BigDecimal percentual = calcularPercentual(valorAtual, meta.getValorLimite());
-                    return converterParaDTO(meta, percentual);
-                })
-                .collect(Collectors.toList());
+    private BigDecimal obterValorAtualDaMeta(Meta meta, Long usuarioId) {
+        return metaRepository.calcularTotalGastoNoPeriodo(
+                meta.getCategoria().getId(),
+                usuarioId,
+                meta.getDataInicio(),
+                meta.getDataFim()
+        );
     }
 
     private BigDecimal calcularPercentual(BigDecimal valorAtual, BigDecimal valorLimite) {
@@ -117,16 +117,16 @@ public class MetaService {
                 .multiply(new BigDecimal(100));
     }
 
-    private MetaResponseDTO converterParaDTO(Meta meta, BigDecimal percentual) {
+    private MetaResponseDTO converterParaDTO(Meta meta,BigDecimal valorAtual, BigDecimal percentual) {
         return new MetaResponseDTO(
                 meta.getId(),
                 meta.getCategoria().getId(),
                 meta.getCategoria().getNome(),
                 meta.getValorLimite(),
-                BigDecimal.ZERO, // valorAtual - será calculado //TODO: calcular Valor
+                valorAtual,
                 meta.getDataInicio(),
                 meta.getDataFim(),
-                percentual, //TODO: calcular percentual
+                percentual,
                 meta.getCriadoEm()
         );
     }

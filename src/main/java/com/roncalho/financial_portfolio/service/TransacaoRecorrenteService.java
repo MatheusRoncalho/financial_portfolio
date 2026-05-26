@@ -11,11 +11,9 @@ import com.roncalho.financial_portfolio.repository.CategoriaRepository;
 import com.roncalho.financial_portfolio.repository.TransacaoRecorrenteRepository;
 import com.roncalho.financial_portfolio.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class TransacaoRecorrenteService {
@@ -50,16 +48,13 @@ public class TransacaoRecorrenteService {
                 .dataFinal(dto.dataFinal() != null ? dto.dataFinal() : null)
                 .build();
 
-        transacaoRecorrente.setProximaTransacao(calcularProximaTransacao(transacaoRecorrente));
 
         TransacaoRecorrente transacaoRecorrenteSalva = transacaoRecorrenteRepository.save(transacaoRecorrente);
         return converterParaDTO(transacaoRecorrenteSalva);
     }
 
-    public List<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentes(Long usuarioId) {
-        return transacaoRecorrenteRepository.findByUsuarioId(usuarioId).stream()
-                .map(this::converterParaDTO)
-                .collect(Collectors.toList());
+    public Page<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentes(Long usuarioId, Pageable pageable) {
+        return transacaoRecorrenteRepository.findByUsuarioId(usuarioId, pageable).map(this::converterParaDTO);
     }
 
     public TransacaoRecorrenteResponseDTO obterTransacaoRecorrentePorId(Long id, Long usuarioId) {
@@ -94,7 +89,6 @@ public class TransacaoRecorrenteService {
         transacaoRecorrenteRepository.deleteById(transacao.getId());
     }
 
-    //TODO: verificar lógica
     @Transactional
     public TransacaoRecorrenteResponseDTO alterarStatus(Long id, String novoStatus, Long usuarioId) {
         TransacaoRecorrente transacao = transacaoRecorrenteRepository.findByIdAndUsuarioId(id, usuarioId)
@@ -107,17 +101,13 @@ public class TransacaoRecorrenteService {
         return converterParaDTO(transacaoRecorrenteAtualizada);
     }
 
-    public List<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentesPorStatus(String status, Long usuarioId) {
+    public Page<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentesPorStatus(String status, Long usuarioId, Pageable pageable) {
         StatusRecorrencia statusEnum = StatusRecorrencia.valueOf(status.toUpperCase());
-        return transacaoRecorrenteRepository.findByUsuarioIdAndStatus(usuarioId, statusEnum).stream()
-                .map(this::converterParaDTO)
-                .collect(Collectors.toList());
+        return transacaoRecorrenteRepository.findByUsuarioIdAndStatus(usuarioId, statusEnum, pageable).map(this::converterParaDTO);
     }
 
-    public List<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentesPorCategoria(Long categoriaId, Long usuarioId) {
-        return transacaoRecorrenteRepository.findByUsuarioIdAndCategoriaId(usuarioId, categoriaId).stream()
-                .map(this::converterParaDTO)
-                .collect(Collectors.toList());
+    public Page<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentesPorCategoria(Long categoriaId, Long usuarioId, Pageable pageable) {
+        return transacaoRecorrenteRepository.findByUsuarioIdAndCategoriaId(usuarioId, categoriaId, pageable).map(this::converterParaDTO);
     }
 
     private TransacaoRecorrenteResponseDTO converterParaDTO(TransacaoRecorrente transacao) {
@@ -132,30 +122,8 @@ public class TransacaoRecorrenteService {
                 transacao.getStatus(),
                 transacao.getDataInicial(),
                 transacao.getDataFinal(),
-                transacao.getProximaTransacao(),
                 transacao.getCriadoEm()
         );
-    }
-
-    //TODO: Verificar lógica da próxima transação
-    private LocalDate calcularProximaTransacao(TransacaoRecorrente transacaoRecorrente) {
-        if (transacaoRecorrente.getStatus() != StatusRecorrencia.ATIVO) {
-            return null;
-        }
-
-        LocalDate inicio = transacaoRecorrente.getDataInicial();
-        switch (transacaoRecorrente.getPeriodo()) {
-            case DIARIA:
-                return inicio.plusDays(1);
-            case SEMANAL:
-                return inicio.plusWeeks(1);
-            case MENSAL:
-                return inicio.plusMonths(1);
-            case ANUAL:
-                return inicio.plusYears(1);
-            default:
-                return null;
-        }
     }
 }
 
