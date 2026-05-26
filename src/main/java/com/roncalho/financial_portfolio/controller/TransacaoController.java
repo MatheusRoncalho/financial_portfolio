@@ -1,5 +1,6 @@
 package com.roncalho.financial_portfolio.controller;
 
+import com.roncalho.financial_portfolio.dto.in.TransacaoFiltroRequestDTO;
 import com.roncalho.financial_portfolio.dto.in.TransacaoRequestDTO;
 import com.roncalho.financial_portfolio.dto.out.TransacaoResponseDTO;
 import com.roncalho.financial_portfolio.service.TransacaoService;
@@ -83,14 +84,9 @@ public class TransacaoController {
     @ApiResponse(responseCode = "200", description = "Transações listadas com sucesso")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @ApiResponse(responseCode = "500", description = "Erro de servidor")
-    public Page<TransacaoResponseDTO> listarTransacoes(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim,
-            @RequestParam(required = false) Long categoria,
-            @RequestParam(required = false) String tipo,
-            Pageable pageable) {
+    public Page<TransacaoResponseDTO> listarTransacoes(TransacaoFiltroRequestDTO filtro, Pageable pageable) {
         Long usuarioId = obterUsuarioIdDoToken();
-        return transacaoService.listarTransacoes(usuarioId, inicio, fim, categoria, tipo, pageable);
+        return transacaoService.listarTransacoes(usuarioId, filtro,pageable);
     }
 
     private Long obterUsuarioIdDoToken() {
