@@ -1,5 +1,6 @@
 package com.roncalho.financial_portfolio.controller;
 
+import com.roncalho.financial_portfolio.dto.in.CategoriaFiltroRequestDTO;
 import com.roncalho.financial_portfolio.dto.in.CategoriaRequestDTO;
 import com.roncalho.financial_portfolio.dto.out.CategoriaResponseDTO;
 import com.roncalho.financial_portfolio.service.CategoriaService;
@@ -40,13 +41,13 @@ public class CategoriaController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar Categorias", description = "Lista todas as categorias do usuário autenticado")
+    @Operation(summary = "Listar Categorias", description = "Lista as categorias filtradas do usuário autenticado")
     @ApiResponse(responseCode = "200", description = "Categorias listadas com sucesso")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @ApiResponse(responseCode = "500", description = "Erro de servidor")
-    public Page<CategoriaResponseDTO> listarCategorias(Pageable pageable) {
+    public Page<CategoriaResponseDTO> listarCategorias(CategoriaFiltroRequestDTO filtro, Pageable pageable) {
         Long usuarioId = obterUsuarioIdDoToken();
-        return categoriaService.listarCategorias(usuarioId, pageable);
+        return categoriaService.listarCategorias(usuarioId, filtro, pageable);
     }
 
     @GetMapping("/{id}")

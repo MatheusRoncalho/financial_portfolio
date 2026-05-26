@@ -1,5 +1,6 @@
 package com.roncalho.financial_portfolio.service;
 
+import com.roncalho.financial_portfolio.dto.in.TransacaoFiltroRequestDTO;
 import com.roncalho.financial_portfolio.dto.in.TransacaoRequestDTO;
 import com.roncalho.financial_portfolio.dto.out.TransacaoResponseDTO;
 import com.roncalho.financial_portfolio.exceptions.RecursoNaoEncontradoException;
@@ -10,9 +11,11 @@ import com.roncalho.financial_portfolio.model.Usuario;
 import com.roncalho.financial_portfolio.repository.CategoriaRepository;
 import com.roncalho.financial_portfolio.repository.TransacaoRepository;
 import com.roncalho.financial_portfolio.repository.UsuarioRepository;
+import com.roncalho.financial_portfolio.specification.TransacaoSpecification;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -88,24 +91,9 @@ public class TransacaoService {
         transacaoRepository.deleteById(id);
     }
 
-    public Page<TransacaoResponseDTO> listarTransacoes(Long usuarioId, LocalDate inicio, LocalDate fim, Long categoriaId, String tipo, Pageable pageable) {
-        Page<Transacao> transacoes;
-
-        if (inicio != null && fim != null && categoriaId != null && tipo != null) {
-            TipoTransacao tipoEnum = TipoTransacao.valueOf(tipo.toUpperCase());
-            transacoes = transacaoRepository.findByUsuarioIdAndCategoriaIdAndTipo(usuarioId, categoriaId, tipoEnum, pageable);
-        } else if (inicio != null && fim != null && categoriaId != null) {
-            transacoes = transacaoRepository.findByUsuarioIdAndCategoriaId(usuarioId, categoriaId, pageable);
-        } else if (categoriaId != null) {
-            transacoes = transacaoRepository.findByUsuarioIdAndCategoriaId(usuarioId, categoriaId, pageable);
-        } else if (tipo != null) {
-            TipoTransacao tipoEnum = TipoTransacao.valueOf(tipo.toUpperCase());
-            transacoes = transacaoRepository.findByUsuarioIdAndTipo(usuarioId, tipoEnum, pageable);
-        } else {
-            transacoes = transacaoRepository.findByUsuarioId(usuarioId, pageable);
-        }
-
-        return transacoes.map(this::converterParaDTO);
+    public Page<TransacaoResponseDTO> listarTransacoes(Long usuarioId, TransacaoFiltroRequestDTO filtro, Pageable pageable) {
+        return transacaoRepository.findAll(TransacaoSpecification.comFiltros(usuarioId, filtro), pageable)
+                .map(this::converterParaDTO);
     }
 
     private TransacaoResponseDTO converterParaDTO(Transacao transacao) {
