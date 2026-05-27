@@ -1,7 +1,9 @@
 package com.roncalho.financial_portfolio.controller;
 
+import com.roncalho.financial_portfolio.dto.in.TransacaoRecorrenteFiltroRequestDTO;
 import com.roncalho.financial_portfolio.dto.in.TransacaoRecorrenteRequestDTO;
 import com.roncalho.financial_portfolio.dto.out.TransacaoRecorrenteResponseDTO;
+import com.roncalho.financial_portfolio.enums.StatusRecorrencia;
 import com.roncalho.financial_portfolio.service.TransacaoRecorrenteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -44,20 +46,10 @@ public class TransacaoRecorrenteController {
     @ApiResponse(responseCode = "200", description = "Transações recorrentes listadas com sucesso")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @ApiResponse(responseCode = "500", description = "Erro de servidor")
-    public Page<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentes(
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) Long categoriaId,
-            Pageable pageable) {
+    public Page<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentes(TransacaoRecorrenteFiltroRequestDTO filtro, Pageable pageable) {
 
         Long usuarioId = obterUsuarioIdDoToken();
-
-        if (status != null) {
-            return transacaoRecorrenteService.listarTransacoesRecorrentesPorStatus(status, usuarioId, pageable);
-        } else if (categoriaId != null) {
-            return transacaoRecorrenteService.listarTransacoesRecorrentesPorCategoria(categoriaId, usuarioId, pageable);
-        } else {
-            return transacaoRecorrenteService.listarTransacoesRecorrentes(usuarioId, pageable);
-        }
+        return transacaoRecorrenteService.listarTransacoesRecorrentes(usuarioId, filtro, pageable);
     }
 
     @GetMapping("/{id}")
@@ -66,7 +58,7 @@ public class TransacaoRecorrenteController {
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @ApiResponse(responseCode = "404", description = "Transação recorrente não encontrada")
     @ApiResponse(responseCode = "500", description = "Erro de servidor")
-    public ResponseEntity<TransacaoRecorrenteResponseDTO> obterTransacoesRecorrentes(@PathVariable Long id) {
+    public ResponseEntity<TransacaoRecorrenteResponseDTO> obterTransacoeRecorrente(@PathVariable Long id) {
         Long usuarioId = obterUsuarioIdDoToken();
         TransacaoRecorrenteResponseDTO response = transacaoRecorrenteService.obterTransacaoRecorrentePorId(id, usuarioId);
         return ResponseEntity.ok(response);
@@ -104,8 +96,7 @@ public class TransacaoRecorrenteController {
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @ApiResponse(responseCode = "404", description = "Transação recorrente não encontrada")
     @ApiResponse(responseCode = "500", description = "Erro de servidor")
-    public ResponseEntity<TransacaoRecorrenteResponseDTO> alterarStatus(@PathVariable Long id,
-                                                                       @RequestParam String status) {
+    public ResponseEntity<TransacaoRecorrenteResponseDTO> alterarStatus(@PathVariable Long id, @RequestParam StatusRecorrencia status) {
         Long usuarioId = obterUsuarioIdDoToken();
         TransacaoRecorrenteResponseDTO response = transacaoRecorrenteService.alterarStatus(id, status, usuarioId);
         return ResponseEntity.ok(response);

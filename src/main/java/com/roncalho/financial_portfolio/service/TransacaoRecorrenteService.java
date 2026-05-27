@@ -1,5 +1,6 @@
 package com.roncalho.financial_portfolio.service;
 
+import com.roncalho.financial_portfolio.dto.in.TransacaoRecorrenteFiltroRequestDTO;
 import com.roncalho.financial_portfolio.dto.in.TransacaoRecorrenteRequestDTO;
 import com.roncalho.financial_portfolio.dto.out.TransacaoRecorrenteResponseDTO;
 import com.roncalho.financial_portfolio.exceptions.RecursoNaoEncontradoException;
@@ -10,6 +11,7 @@ import com.roncalho.financial_portfolio.model.Usuario;
 import com.roncalho.financial_portfolio.repository.CategoriaRepository;
 import com.roncalho.financial_portfolio.repository.TransacaoRecorrenteRepository;
 import com.roncalho.financial_portfolio.repository.UsuarioRepository;
+import com.roncalho.financial_portfolio.specification.TransacaoRecorrenteSpecification;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -53,8 +55,9 @@ public class TransacaoRecorrenteService {
         return converterParaDTO(transacaoRecorrenteSalva);
     }
 
-    public Page<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentes(Long usuarioId, Pageable pageable) {
-        return transacaoRecorrenteRepository.findByUsuarioId(usuarioId, pageable).map(this::converterParaDTO);
+    public Page<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentes(Long usuarioId, TransacaoRecorrenteFiltroRequestDTO filtro, Pageable pageable) {
+        return transacaoRecorrenteRepository.findAll(TransacaoRecorrenteSpecification.comFiltros(usuarioId, filtro), pageable)
+                .map(this::converterParaDTO);
     }
 
     public TransacaoRecorrenteResponseDTO obterTransacaoRecorrentePorId(Long id, Long usuarioId) {
@@ -90,24 +93,14 @@ public class TransacaoRecorrenteService {
     }
 
     @Transactional
-    public TransacaoRecorrenteResponseDTO alterarStatus(Long id, String novoStatus, Long usuarioId) {
+    public TransacaoRecorrenteResponseDTO alterarStatus(Long id, StatusRecorrencia novoStatus, Long usuarioId) {
         TransacaoRecorrente transacao = transacaoRecorrenteRepository.findByIdAndUsuarioId(id, usuarioId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Transação recorrente não encontrada"));
 
-        StatusRecorrencia status = StatusRecorrencia.valueOf(novoStatus.toUpperCase());
-        transacao.setStatus(status);
+        transacao.setStatus(novoStatus);
 
         TransacaoRecorrente transacaoRecorrenteAtualizada = transacaoRecorrenteRepository.save(transacao);
         return converterParaDTO(transacaoRecorrenteAtualizada);
-    }
-
-    public Page<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentesPorStatus(String status, Long usuarioId, Pageable pageable) {
-        StatusRecorrencia statusEnum = StatusRecorrencia.valueOf(status.toUpperCase());
-        return transacaoRecorrenteRepository.findByUsuarioIdAndStatus(usuarioId, statusEnum, pageable).map(this::converterParaDTO);
-    }
-
-    public Page<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentesPorCategoria(Long categoriaId, Long usuarioId, Pageable pageable) {
-        return transacaoRecorrenteRepository.findByUsuarioIdAndCategoriaId(usuarioId, categoriaId, pageable).map(this::converterParaDTO);
     }
 
     private TransacaoRecorrenteResponseDTO converterParaDTO(TransacaoRecorrente transacao) {

@@ -8,7 +8,6 @@ import com.roncalho.financial_portfolio.model.Transacao;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 public class TransacaoSpecification {
 
@@ -67,20 +66,17 @@ public class TransacaoSpecification {
         };
     }
 
-    private static Specification<Transacao> dataTransacaoEntre(LocalDate dataInicio, LocalDate dataFinal) {
+    private static Specification<Transacao> dataTransacaoEntre(String dataInicio, String dataFinal) {
         return (root, query, cb) -> {
             if (dataInicio == null && dataFinal == null) {
                 return cb.conjunction();
             }
-
             if (dataInicio != null && dataFinal == null) {
                 return cb.greaterThanOrEqualTo(root.get("dataTransacao"), dataInicio);
             }
-
             if (dataInicio == null && dataFinal != null) {
                 return cb.lessThanOrEqualTo(root.get("dataTransacao"), dataFinal);
             }
-
             return cb.between(root.get("dataTransacao"), dataInicio, dataFinal);
         };
     }
