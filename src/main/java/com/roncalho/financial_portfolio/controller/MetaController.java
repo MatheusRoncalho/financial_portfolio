@@ -1,5 +1,6 @@
 package com.roncalho.financial_portfolio.controller;
 
+import com.roncalho.financial_portfolio.dto.in.MetaFiltroRequestDTO;
 import com.roncalho.financial_portfolio.dto.in.MetaRequestDTO;
 import com.roncalho.financial_portfolio.dto.out.MetaResponseDTO;
 import com.roncalho.financial_portfolio.service.MetaService;
@@ -44,9 +45,9 @@ public class MetaController {
     @ApiResponse(responseCode = "200", description = "Metas listadas com sucesso")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @ApiResponse(responseCode = "500", description = "Erro de servidor")
-    public Page<MetaResponseDTO> listarMetas(Pageable pageable) {
+    public Page<MetaResponseDTO> listarMetas(MetaFiltroRequestDTO filtro, Pageable pageable) {
         Long usuarioId = obterUsuarioIdDoToken();
-        return metaService.listarMetas(usuarioId, pageable);
+        return metaService.listarMetas(usuarioId, filtro, pageable);
     }
 
     @GetMapping("/{id}")

@@ -14,10 +14,13 @@ public class CategoriaSpecification {
 
     private static Specification<Categoria> usuarioIdIgual(Long usuarioId) {
         return (root, query, cb) -> {
-            if (usuarioId == null) {
-                return cb.conjunction();
-            }
-            return cb.equal(root.get("usuario").get("id"), usuarioId);
+            return cb.or(
+                    cb.equal(root.get("usuario").get("id"), usuarioId),
+                    cb.and(
+                            cb.isNull(root.get("usuario")),
+                            cb.isTrue(root.get("sistema"))
+                    )
+            );
         };
     }
 

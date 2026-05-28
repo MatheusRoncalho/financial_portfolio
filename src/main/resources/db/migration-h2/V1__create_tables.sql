@@ -44,7 +44,7 @@ CREATE TABLE transacoes_recorrentes (
                             categoria_id BIGINT NOT NULL REFERENCES categorias(id),
                             descricao VARCHAR(255),
                             valor DECIMAL(10,2) NOT NULL CHECK (valor > 0),
-                            tipo VARCHAR(10) NOT NULL CHECK (tipo IN ('ENTRADA', 'SAIDA', 'INVESTIMENTO')),
+                            tipo VARCHAR(20) NOT NULL CHECK (tipo IN ('ENTRADA', 'SAIDA', 'INVESTIMENTO')),
                             periodo VARCHAR(20) NOT NULL CHECK (periodo IN ('DIARIA', 'SEMANAL', 'MENSAL', 'ANUAL')),
                             status VARCHAR(10) NOT NULL CHECK (status IN ('ATIVO', 'CANCELADO')),
                             data_inicial DATE NOT NULL,

@@ -1,5 +1,6 @@
 package com.roncalho.financial_portfolio.service;
 
+import com.roncalho.financial_portfolio.dto.in.MetaFiltroRequestDTO;
 import com.roncalho.financial_portfolio.dto.in.MetaRequestDTO;
 import com.roncalho.financial_portfolio.dto.out.MetaResponseDTO;
 import com.roncalho.financial_portfolio.exceptions.RecursoNaoEncontradoException;
@@ -9,6 +10,7 @@ import com.roncalho.financial_portfolio.model.Usuario;
 import com.roncalho.financial_portfolio.repository.CategoriaRepository;
 import com.roncalho.financial_portfolio.repository.MetaRepository;
 import com.roncalho.financial_portfolio.repository.UsuarioRepository;
+import com.roncalho.financial_portfolio.specification.MetaSpecification;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -58,8 +60,13 @@ public class MetaService {
         return converterParaDTO(metaSalva, valorAtual, porcentagem);
     }
 
-    public Page<MetaResponseDTO> listarMetas(Long usuarioId, Pageable pageable) {
-        return metaRepository.listarMetasComProgressoPaginado(usuarioId, pageable);
+    public Page<MetaResponseDTO> listarMetas(Long usuarioId, MetaFiltroRequestDTO filtro, Pageable pageable) {
+        return metaRepository.findAll(MetaSpecification.comFiltros(usuarioId, filtro), pageable)
+                .map(meta -> {
+                    BigDecimal valorAtual = obterValorAtualDaMeta(meta, usuarioId);
+                    BigDecimal percentual = calcularPercentual(valorAtual, meta.getValorLimite());
+                    return converterParaDTO(meta, valorAtual, percentual);
+                });
     }
 
     public MetaResponseDTO obterMetaPorId(Long id, Long usuarioId) {

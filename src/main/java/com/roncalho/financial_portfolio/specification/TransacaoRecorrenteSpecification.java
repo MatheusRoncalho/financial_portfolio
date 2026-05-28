@@ -9,18 +9,19 @@ import com.roncalho.financial_portfolio.model.TransacaoRecorrente;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public class TransacaoRecorrenteSpecification {
 
     public static Specification<TransacaoRecorrente> comFiltros(Long usuarioId, TransacaoRecorrenteFiltroRequestDTO filtro){
-        return Specification.where(TransacaoRecorrenteSpecification.usuarioIdIgual(usuarioId))
-                .and(TransacaoRecorrenteSpecification.descricaoContem(filtro.descricao()))
-                .and(TransacaoRecorrenteSpecification.valorComOperacao(filtro.valor(), filtro.operacaoValor()))
-                .and(TransacaoRecorrenteSpecification.tipoIgual(filtro.tipo()))
-                .and(TransacaoRecorrenteSpecification.periodoIgual(filtro.periodo()))
-                .and(TransacaoRecorrenteSpecification.statusIgual(filtro.status()))
-                .and(TransacaoRecorrenteSpecification.dataTransacaoEntre(filtro.dataInicial(), filtro.dataFinal()))
-                .and(TransacaoRecorrenteSpecification.categoriaIdIgual(filtro.categoriaId()));
+        return Specification.where(usuarioIdIgual(usuarioId))
+                .and(descricaoContem(filtro.descricao()))
+                .and(valorComOperacao(filtro.valor(), filtro.operacaoValor()))
+                .and(tipoIgual(filtro.tipo()))
+                .and(periodoIgual(filtro.periodo()))
+                .and(statusIgual(filtro.status()))
+                .and(dataTransacaoEntre(filtro.dataInicial(), filtro.dataFinal()))
+                .and(categoriaIdIgual(filtro.categoriaId()));
     }
 
     private static Specification<TransacaoRecorrente> usuarioIdIgual(Long usuarioId) {
@@ -85,18 +86,18 @@ public class TransacaoRecorrenteSpecification {
         });
     }
 
-    private static Specification<TransacaoRecorrente> dataTransacaoEntre(String dataInicio, String dataFinal) {
+    private static Specification<TransacaoRecorrente> dataTransacaoEntre(LocalDate dataInicial, LocalDate dataFinal) {
         return (root, query, cb) -> {
-            if (dataInicio == null && dataFinal == null) {
+            if (dataInicial == null && dataFinal == null) {
                 return cb.conjunction();
             }
-            if (dataInicio != null && dataFinal == null) {
-                return cb.greaterThanOrEqualTo(root.get("dataTransacao"), dataInicio);
+            if (dataInicial != null && dataFinal == null) {
+                return cb.greaterThanOrEqualTo(root.get("dataInicial"), dataInicial);
             }
-            if (dataInicio == null && dataFinal != null) {
-                return cb.lessThanOrEqualTo(root.get("dataTransacao"), dataFinal);
+            if (dataInicial == null && dataFinal != null) {
+                return cb.lessThanOrEqualTo(root.get("dataInicial"), dataFinal);
             }
-            return cb.between(root.get("dataTransacao"), dataInicio, dataFinal);
+            return cb.between(root.get("dataInicial"), dataInicial, dataFinal);
         };
     }
 
@@ -105,7 +106,7 @@ public class TransacaoRecorrenteSpecification {
             if (categoriaId == null) {
                 return cb.conjunction();
             }
-            return cb.equal(root.get("tipo"), categoriaId);
+            return cb.equal(root.get("categoria").get("id"), categoriaId);
         };
     }
 }

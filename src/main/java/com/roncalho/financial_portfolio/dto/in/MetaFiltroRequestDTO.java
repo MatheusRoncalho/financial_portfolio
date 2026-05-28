@@ -2,20 +2,17 @@ package com.roncalho.financial_portfolio.dto.in;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.roncalho.financial_portfolio.enums.OperacaoComparacao;
-import com.roncalho.financial_portfolio.enums.TipoTransacao;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public record TransacaoFiltroRequestDTO(
+public record MetaFiltroRequestDTO(
         Long categoriaId,
-        String descricao,
-        BigDecimal valor,
+        BigDecimal valorLimite,
         OperacaoComparacao operacaoValor,
-        TipoTransacao tipo,
         @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
-        LocalDate dataTransacao,
+        LocalDate dataInicio,
         @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
-        LocalDate dataFinal
+        LocalDate dataFim
 ) {
 }

@@ -8,6 +8,7 @@ import com.roncalho.financial_portfolio.enums.StatusRecorrencia;
 import com.roncalho.financial_portfolio.enums.TipoTransacao;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public record TransacaoRecorrenteFiltroRequestDTO(
         Long categoriaId,
@@ -17,9 +18,9 @@ public record TransacaoRecorrenteFiltroRequestDTO(
         TipoTransacao tipo,
         PeriodoRecorrencia periodo,
         StatusRecorrencia status,
-        @JsonFormat(pattern = "yyyy-MM-dd")
-        String dataInicial,
-        @JsonFormat(pattern = "yyyy-MM-dd")
-        String dataFinal
+        @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
+        LocalDate dataInicial,
+        @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
+        LocalDate dataFinal
 ) {
 }

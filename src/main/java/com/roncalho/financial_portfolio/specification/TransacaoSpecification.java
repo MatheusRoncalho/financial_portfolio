@@ -8,6 +8,7 @@ import com.roncalho.financial_portfolio.model.Transacao;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public class TransacaoSpecification {
 
@@ -17,7 +18,7 @@ public class TransacaoSpecification {
                 .and(valorComOperacao(filtro.valor(), filtro.operacaoValor()))
                 .and(tipoIgual(filtro.tipo()))
                 .and(dataTransacaoEntre(filtro.dataTransacao(), filtro.dataFinal()))
-                .and(categoriaIdIgual(filtro.categoria()));
+                .and(categoriaIdIgual(filtro.categoriaId()));
     }
 
     private static Specification<Transacao> usuarioIdIgual(Long usuarioId) {
@@ -66,7 +67,7 @@ public class TransacaoSpecification {
         };
     }
 
-    private static Specification<Transacao> dataTransacaoEntre(String dataInicio, String dataFinal) {
+    private static Specification<Transacao> dataTransacaoEntre(LocalDate dataInicio, LocalDate dataFinal) {
         return (root, query, cb) -> {
             if (dataInicio == null && dataFinal == null) {
                 return cb.conjunction();
@@ -86,7 +87,7 @@ public class TransacaoSpecification {
             if (categoriaId == null) {
                 return cb.conjunction();
             }
-            return cb.equal(root.get("tipo"), categoriaId);
+            return cb.equal(root.get("categoria").get("id"), categoriaId);
         };
     }
 }
