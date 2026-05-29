@@ -46,7 +46,7 @@ public class TransacaoRecorrenteController {
     @ApiResponse(responseCode = "200", description = "Transações recorrentes listadas com sucesso")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @ApiResponse(responseCode = "500", description = "Erro de servidor")
-    public Page<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentes(TransacaoRecorrenteFiltroRequestDTO filtro, Pageable pageable) {
+    public Page<TransacaoRecorrenteResponseDTO> listarTransacoesRecorrentes(@Valid TransacaoRecorrenteFiltroRequestDTO filtro, Pageable pageable) {
 
         Long usuarioId = obterUsuarioIdDoToken();
         return transacaoRecorrenteService.listarTransacoesRecorrentes(usuarioId, filtro, pageable);

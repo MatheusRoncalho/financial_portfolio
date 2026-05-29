@@ -45,7 +45,7 @@ public class MetaController {
     @ApiResponse(responseCode = "200", description = "Metas listadas com sucesso")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @ApiResponse(responseCode = "500", description = "Erro de servidor")
-    public Page<MetaResponseDTO> listarMetas(MetaFiltroRequestDTO filtro, Pageable pageable) {
+    public Page<MetaResponseDTO> listarMetas(@Valid MetaFiltroRequestDTO filtro, Pageable pageable) {
         Long usuarioId = obterUsuarioIdDoToken();
         return metaService.listarMetas(usuarioId, filtro, pageable);
     }

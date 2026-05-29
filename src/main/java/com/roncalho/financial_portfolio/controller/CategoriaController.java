@@ -45,7 +45,7 @@ public class CategoriaController {
     @ApiResponse(responseCode = "200", description = "Categorias listadas com sucesso")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @ApiResponse(responseCode = "500", description = "Erro de servidor")
-    public Page<CategoriaResponseDTO> listarCategorias(CategoriaFiltroRequestDTO filtro, Pageable pageable) {
+    public Page<CategoriaResponseDTO> listarCategorias(@Valid CategoriaFiltroRequestDTO filtro, Pageable pageable) {
         Long usuarioId = obterUsuarioIdDoToken();
         return categoriaService.listarCategorias(usuarioId, filtro, pageable);
     }

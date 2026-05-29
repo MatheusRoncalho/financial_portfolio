@@ -82,7 +82,7 @@ public class TransacaoController {
     @ApiResponse(responseCode = "200", description = "Transações listadas com sucesso")
     @ApiResponse(responseCode = "401", description = "Não autenticado")
     @ApiResponse(responseCode = "500", description = "Erro de servidor")
-    public Page<TransacaoResponseDTO> listarTransacoes(TransacaoFiltroRequestDTO filtro, Pageable pageable) {
+    public Page<TransacaoResponseDTO> listarTransacoes(@Valid TransacaoFiltroRequestDTO filtro, Pageable pageable) {
         Long usuarioId = obterUsuarioIdDoToken();
         return transacaoService.listarTransacoes(usuarioId, filtro,pageable);
     }
