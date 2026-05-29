@@ -6,12 +6,14 @@ import com.roncalho.financial_portfolio.enums.OperacaoComparacao;
 import com.roncalho.financial_portfolio.enums.PeriodoRecorrencia;
 import com.roncalho.financial_portfolio.enums.StatusRecorrencia;
 import com.roncalho.financial_portfolio.enums.TipoTransacao;
+import com.roncalho.financial_portfolio.validator.DataValida;
 import com.roncalho.financial_portfolio.validator.OperacaoValorObrigatoria;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @OperacaoValorObrigatoria
+@DataValida
 public record TransacaoRecorrenteFiltroRequestDTO(
         Long categoriaId,
         String descricao,

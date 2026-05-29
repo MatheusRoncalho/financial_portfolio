@@ -18,7 +18,6 @@ public class OperacaoValorValidator implements ConstraintValidator<OperacaoValor
         Object valor = invocarMetodo(value, nomeValor);
         Object operacao = invocarMetodo(value, "operacaoValor");
 
-        // Se tem valor mas não tem operacao
         if (valor != null && operacao == null) {
             context.buildConstraintViolationWithTemplate(
                     "Quando informar '" + nomeValor + "', 'operacaoValor' é obrigatória"
@@ -26,7 +25,6 @@ public class OperacaoValorValidator implements ConstraintValidator<OperacaoValor
             return false;
         }
 
-        // Se tem operacao mas não tem valor
         if (operacao != null && valor == null) {
             context.buildConstraintViolationWithTemplate(
                     "Quando informar 'operacaoValor', '" + nomeValor + "' é obrigatório"
